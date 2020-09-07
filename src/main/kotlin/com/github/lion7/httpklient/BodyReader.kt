@@ -8,5 +8,5 @@ import java.io.InputStream
  */
 interface BodyReader<T> {
     val accept: String
-    fun read(inputStream: InputStream): T
+    fun read(statusCode: Int, headers: Headers, inputStream: InputStream): T
 }

@@ -1,6 +1,7 @@
 package com.github.lion7.httpklient.readers
 
 import com.github.lion7.httpklient.BodyReader
+import com.github.lion7.httpklient.Headers
 import java.io.InputStream
 
 /**
@@ -9,5 +10,5 @@ import java.io.InputStream
  */
 class InputStreamBodyReader(override val accept: String = "*/*") : BodyReader<InputStream> {
 
-    override fun read(inputStream: InputStream): InputStream = inputStream
+    override fun read(statusCode: Int, headers: Headers, inputStream: InputStream): InputStream = inputStream
 }

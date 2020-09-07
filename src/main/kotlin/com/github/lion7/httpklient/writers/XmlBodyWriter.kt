@@ -10,5 +10,6 @@ class XmlBodyWriter<T : Any>(
 ) : BodyWriter {
 
     override val contentType: String = "application/xml; charset=\"UTF-8\""
+
     override fun write(outputStream: OutputStream) = jaxbContext.createMarshaller().marshal(element, outputStream)
 }

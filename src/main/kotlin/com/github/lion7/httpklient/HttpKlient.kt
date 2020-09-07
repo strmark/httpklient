@@ -1,40 +1,40 @@
 package com.github.lion7.httpklient
 
-import com.github.lion7.httpklient.errorhandlers.ThrowingErrorHandler
-import com.github.lion7.httpklient.impl.JdkHttpKlient
+import com.github.lion7.httpklient.exception.HttpKlientException
+import com.github.lion7.httpklient.impl.UrlConnectionHttpKlient
 import java.net.URI
-import java.time.Duration
 
 interface HttpKlient {
 
     companion object {
-        val instance: HttpKlient = JdkHttpKlient
+        val default: HttpKlient = create(Options())
+        fun create(options: Options): HttpKlient = UrlConnectionHttpKlient(options)
     }
 
-    fun <T> get(
+    @Throws(HttpKlientException::class)
+    fun <T, E> get(
         uri: URI,
-        timeout: Duration,
-        headers: Map<String, String>,
+        headers: Headers,
         bodyReader: BodyReader<T>,
-        errorHandler: ErrorHandler<T> = ThrowingErrorHandler()
-    ): T
+        errorHandler: BodyReader<E>? = null
+    ): T = exchange("GET", uri, headers, bodyReader, null, errorHandler)
 
-    fun <T> post(
+    @Throws(HttpKlientException::class)
+    fun <T, E> post(
         uri: URI,
-        timeout: Duration,
-        headers: Map<String, String>,
+        headers: Headers,
         bodyReader: BodyReader<T>,
         bodyWriter: BodyWriter? = null,
-        errorHandler: ErrorHandler<T> = ThrowingErrorHandler()
-    ): T
+        errorHandler: BodyReader<E>? = null
+    ): T = exchange("POST", uri, headers, bodyReader, bodyWriter, errorHandler)
 
-    fun <T> exchange(
+    @Throws(HttpKlientException::class)
+    fun <T, E> exchange(
         method: String,
         uri: URI,
-        timeout: Duration,
-        headers: Map<String, String>,
+        headers: Headers,
         bodyReader: BodyReader<T>,
-        bodyWriter: BodyWriter?,
-        errorHandler: ErrorHandler<T>
+        bodyWriter: BodyWriter? = null,
+        errorHandler: BodyReader<E>? = null
     ): T
 }

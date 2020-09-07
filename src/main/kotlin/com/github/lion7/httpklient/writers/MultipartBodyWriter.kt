@@ -4,7 +4,7 @@ import com.github.lion7.httpklient.BodyWriter
 import com.github.lion7.httpklient.multipart.Part
 import java.io.OutputStream
 import java.math.BigInteger
-import java.util.Random
+import java.util.*
 
 class MultipartBodyWriter(private vararg val parts: Part) : BodyWriter {
 
@@ -19,8 +19,7 @@ class MultipartBodyWriter(private vararg val parts: Part) : BodyWriter {
         val writer = outputStream.bufferedWriter()
         parts.forEach { part ->
             writer.write("--$boundary\r\n")
-            part.headers.forEach { (key, value) -> writer.write("$key: $value\r\n") }
-            writer.write("\r\n")
+            HeadersWriter.write(part.headers, writer)
             writer.flush()
             part.content.write(outputStream)
             writer.write("\r\n")

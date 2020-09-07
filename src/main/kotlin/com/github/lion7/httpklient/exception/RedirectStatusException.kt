@@ -1,3 +1,6 @@
 package com.github.lion7.httpklient.exception
 
-class RedirectStatusException(statusCode: Int, body: String?) : HttpKlientException(statusCode, body)
+import com.github.lion7.httpklient.Headers
+
+class RedirectStatusException(statusCode: Int, headers: Headers, body: Any?) :
+    HttpKlientException(statusCode, headers, body)
