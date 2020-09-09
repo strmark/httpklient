@@ -7,6 +7,7 @@ import java.io.InputStream
  * The reader is responsible for closing the stream.
  */
 interface BodyReader<T> {
+
     val accept: String
-    fun read(statusCode: Int, headers: Headers, inputStream: InputStream): T
+    fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): T
 }

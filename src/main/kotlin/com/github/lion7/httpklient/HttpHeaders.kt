@@ -1,8 +1,10 @@
 package com.github.lion7.httpklient
 
-import java.util.*
+import java.util.Base64
+import java.util.LinkedList
+import java.util.TreeMap
 
-class Headers(headers: Map<String, List<String>> = emptyMap()) : LinkedHashMap<String, LinkedList<String>>() {
+class HttpHeaders(headers: Map<String, List<String>> = emptyMap()) : TreeMap<String, LinkedList<String>>(String.CASE_INSENSITIVE_ORDER) {
 
     init {
         headers.forEach { (name, value) -> header(name, value) }
@@ -18,20 +20,15 @@ class Headers(headers: Map<String, List<String>> = emptyMap()) : LinkedHashMap<S
 
     fun contentType(value: String) = header("Content-Type", value)
     fun header(name: String, value: String) = header(name, listOf(value))
-    fun header(name: String, values: List<String>): Headers = apply {
+    fun header(name: String, values: List<String>): HttpHeaders = apply {
         computeIfAbsent(name) { LinkedList() }.addAll(values)
-    }
-
-    fun headerIfAbsent(name: String, value: String) = headerIfAbsent(name, listOf(value))
-    fun headerIfAbsent(name: String, values: List<String>): Headers = apply {
-        putIfAbsent(name, LinkedList(values))
     }
 
     fun merge(headers: Map<String, String>) = apply {
         headers.forEach { (name, value) -> header(name, value) }
     }
 
-    fun merge(headers: Headers) = apply {
+    fun merge(headers: HttpHeaders) = apply {
         headers.forEach { (name, value) -> header(name, value) }
     }
 

@@ -1,15 +1,13 @@
 package com.github.lion7.httpklient.writers
 
 import com.github.lion7.httpklient.BodyWriter
-import java.io.File
+import com.github.lion7.httpklient.MediaTypes
 import java.io.OutputStream
 
 class ByteArrayBodyWriter(
-    private val file: File,
-    override val contentType: String = "application/octet-stream"
+        private val bytes: ByteArray,
+        override val contentType: String = MediaTypes.APPLICATION_OCTET_STREAM
 ) : BodyWriter {
 
-    override fun write(outputStream: OutputStream) {
-        file.inputStream().use { it.copyTo(outputStream) }
-    }
+    override fun write(outputStream: OutputStream) = outputStream.write(bytes)
 }
