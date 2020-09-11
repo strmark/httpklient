@@ -24,13 +24,16 @@ import com.github.lion7.httpklient.exception.UnknownStatusException
 import com.github.lion7.httpklient.readers.HttpResponseBodyReader
 import java.io.InputStream
 
-class ThrowingErrorHandler<T>(private val errorReader: BodyReader<T>? = null) {
+class ThrowingErrorHandler<T>(private val errorReader: BodyReader<T>) {
+
+    private val log = System.getLogger(javaClass.name)
 
     fun handle(request: HttpRequest, statusCode: Int, headers: HttpHeaders, errorStream: InputStream?): Nothing {
-        val response = if (errorStream != null && errorReader != null) {
+        val response = if (errorStream != null) {
             try {
                 HttpResponseBodyReader(errorReader).read(statusCode, headers, errorStream)
             } catch (e: Exception) {
+                log.log(System.Logger.Level.ERROR, "Failed to read error stream of HTTP request '${request.method} ${request.uri}' with status code '$statusCode'", e)
                 HttpResponse(statusCode, headers, null)
             }
         } else {
