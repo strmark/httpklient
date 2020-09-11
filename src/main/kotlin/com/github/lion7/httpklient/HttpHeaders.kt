@@ -4,10 +4,10 @@ import java.util.Base64
 import java.util.LinkedList
 import java.util.TreeMap
 
-class HttpHeaders(headers: Map<String, List<String>> = emptyMap()) : TreeMap<String, LinkedList<String>>(String.CASE_INSENSITIVE_ORDER) {
+class HttpHeaders(initialHeaders: Map<String, List<String>> = emptyMap()) : TreeMap<String, LinkedList<String>>(String.CASE_INSENSITIVE_ORDER) {
 
     init {
-        headers.forEach { (name, value) -> header(name, value) }
+        initialHeaders.forEach { (name, value) -> header(name, value) }
     }
 
     fun accept(value: String) = header("Accept", value)
@@ -19,9 +19,13 @@ class HttpHeaders(headers: Map<String, List<String>> = emptyMap()) : TreeMap<Str
         )
 
     fun contentType(value: String) = header("Content-Type", value)
-    fun header(name: String, value: String) = header(name, listOf(value))
-    fun header(name: String, values: List<String>): HttpHeaders = apply {
-        computeIfAbsent(name) { LinkedList() }.addAll(values)
+    fun header(name: String, value: String, append: Boolean = false) = header(name, listOf(value), append)
+    fun header(name: String, values: List<String>, append: Boolean = false): HttpHeaders = apply {
+        if(append && containsKey(name)) {
+            getValue(name).addAll(values)
+        } else {
+            put(name, LinkedList(values))
+        }
     }
 
     fun merge(headers: Map<String, String>) = apply {
