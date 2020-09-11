@@ -2,6 +2,7 @@ package com.github.lion7.httpklient
 
 import com.github.lion7.httpklient.exception.HttpKlientException
 import com.github.lion7.httpklient.impl.UrlConnectionHttpKlient
+import com.github.lion7.httpklient.readers.DiscardingBodyReader
 import java.net.URI
 import java.time.Duration
 
@@ -30,6 +31,14 @@ interface HttpKlient {
     ): T = exchange("POST", uri, bodyReader, bodyWriter, headers)
 
     @Throws(HttpKlientException::class)
+    fun <T> put(
+            uri: URI,
+            bodyReader: BodyReader<T>,
+            bodyWriter: BodyWriter? = null,
+            headers: HttpHeaders? = null
+    ): T = exchange("PUT", uri, bodyReader, bodyWriter, headers)
+
+    @Throws(HttpKlientException::class)
     fun <T> exchange(
             method: String,
             uri: URI,
@@ -42,8 +51,7 @@ interface HttpKlient {
     fun <T> exchange(request: HttpRequest, bodyReader: BodyReader<T>, bodyWriter: BodyWriter?): T
 
     private fun buildRequestHeaders(headers: HttpHeaders?, bodyReader: BodyReader<*>, bodyWriter: BodyWriter?): HttpHeaders {
-        val requestHeaders = HttpHeaders()
-        options.defaultHeaders?.let(requestHeaders::merge)
+        val requestHeaders = HttpHeaders(options.defaultHeaders)
         requestHeaders.accept(bodyReader.accept)
         bodyWriter?.contentType?.let(requestHeaders::contentType)
         headers?.let(requestHeaders::putAll)
@@ -54,8 +62,8 @@ interface HttpKlient {
             val connectTimeout: Duration,
             val readTimeout: Duration,
             val followRedirects: Boolean,
-            val defaultHeaders: HttpHeaders?,
-            val errorReader: BodyReader<*>?
+            val defaultHeaders: HttpHeaders,
+            val errorReader: BodyReader<*>
     ) {
         class Builder {
             var connectTimeout: Duration = Duration.ofSeconds(10)
@@ -63,7 +71,7 @@ interface HttpKlient {
             var followRedirects: Boolean = true
             var defaultHeaders: HttpHeaders? = null
             var errorReader: BodyReader<*>? = null
-            fun build() = Options(connectTimeout, readTimeout, followRedirects, defaultHeaders, errorReader)
+            fun build() = Options(connectTimeout, readTimeout, followRedirects, defaultHeaders ?: HttpHeaders(), errorReader ?: DiscardingBodyReader())
         }
     }
 }
