@@ -29,11 +29,11 @@ class HttpHeaders(initialHeaders: Map<String, List<String>> = emptyMap()) : Tree
     }
 
     fun merge(headers: Map<String, String>) = apply {
-        headers.forEach { (name, value) -> header(name, value) }
+        headers.forEach { (name, value) -> header(name, value, true) }
     }
 
     fun merge(headers: HttpHeaders) = apply {
-        headers.forEach { (name, value) -> header(name, value) }
+        headers.forEach { (name, value) -> header(name, value, true) }
     }
 
     object Authorization {

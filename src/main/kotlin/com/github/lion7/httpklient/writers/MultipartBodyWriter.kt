@@ -21,7 +21,7 @@ class MultipartBodyWriter(private vararg val parts: Part) : BodyWriter {
             writer.write("--$boundary\r\n")
             HeadersWriter.write(part.headers, writer)
             writer.flush()
-            part.content.write(outputStream)
+            part.content.use { it.transferTo(outputStream) }
             writer.write("\r\n")
         }
         writer.write("--$boundary--")
