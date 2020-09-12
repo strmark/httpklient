@@ -7,6 +7,7 @@ import com.github.lion7.httpklient.HttpResponse
 import com.github.lion7.httpklient.exception.BadGatewayException
 import com.github.lion7.httpklient.exception.BadRequestException
 import com.github.lion7.httpklient.exception.ClientStatusException
+import com.github.lion7.httpklient.exception.ConflictException
 import com.github.lion7.httpklient.exception.ForbiddenException
 import com.github.lion7.httpklient.exception.GatewayTimeoutException
 import com.github.lion7.httpklient.exception.HttpVersionNotSupportedException
@@ -51,6 +52,7 @@ class ThrowingErrorHandler<T>(private val errorReader: BodyReader<T>) {
             404 -> throw NotFoundException(request, response)
             405 -> throw MethodNotAllowedException(request, response)
             406 -> throw NotAcceptableException(request, response)
+            409 -> throw ConflictException(request, response)
             in 400..499 -> throw ClientStatusException(request, response)
             // Server errors
             500 -> throw InternalServerErrorException(request, response)

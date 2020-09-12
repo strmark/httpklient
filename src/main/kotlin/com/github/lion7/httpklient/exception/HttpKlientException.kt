@@ -17,6 +17,7 @@ class ForbiddenException(request: HttpRequest, response: HttpResponse<*>) : Clie
 class NotFoundException(request: HttpRequest, response: HttpResponse<*>) : ClientStatusException(request, response)
 class MethodNotAllowedException(request: HttpRequest, response: HttpResponse<*>) : ClientStatusException(request, response)
 class NotAcceptableException(request: HttpRequest, response: HttpResponse<*>) : ClientStatusException(request, response)
+class ConflictException(request: HttpRequest, response: HttpResponse<*>) : ClientStatusException(request, response)
 
 open class ServerStatusException(request: HttpRequest, response: HttpResponse<*>) : HttpKlientException(request, response)
 class InternalServerErrorException(request: HttpRequest, response: HttpResponse<*>) : ServerStatusException(request, response)
