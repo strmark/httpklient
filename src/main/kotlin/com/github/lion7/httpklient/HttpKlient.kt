@@ -39,6 +39,13 @@ interface HttpKlient {
     ): T = exchange("PUT", uri, bodyReader, bodyWriter, headers)
 
     @Throws(HttpKlientException::class)
+    fun <T> delete(
+            uri: URI,
+            bodyReader: BodyReader<T>,
+            headers: HttpHeaders? = null
+    ): T = exchange("DELETE", uri, bodyReader, null, headers)
+
+    @Throws(HttpKlientException::class)
     fun <T> exchange(
             method: String,
             uri: URI,
