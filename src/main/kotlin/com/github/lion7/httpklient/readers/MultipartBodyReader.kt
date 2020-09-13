@@ -14,14 +14,14 @@ class MultipartBodyReader(override val accept: String = MediaTypes.MULTIPART_FOR
 
     override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): List<Part> = inputStream.use {
         val contentType = headers.getValue("Content-Type").single()
-        val boundary = contentType.parameters.getValue("boundary")
+        val boundary = contentType.parameters["boundary"] ?: throw IllegalStateException("Boundary is missing in Content-Type header: '$contentType'")
         val buffered = inputStream.buffered()
         val mis = MultipartInputStream(buffered, boundary.toByteArray())
         val parts = mutableListOf<Part>()
         while (mis.nextInputStream()) {
             val partHeaders = HeadersReader.read(buffered)
             val contentDisposition = partHeaders.getValue("Content-Disposition").single()
-            val name = contentDisposition.parameters.getValue("name")
+            val name = contentDisposition.parameters["name"] ?: throw IllegalStateException("Name is missing in Content-Disposition header: '$contentType'")
             val filename = contentDisposition.parameters["filename"]
             if (filename != null) {
                 val path = BodyReaders.ofFile().read(statusCode, partHeaders, mis)
