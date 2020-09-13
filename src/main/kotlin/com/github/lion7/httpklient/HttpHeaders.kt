@@ -39,14 +39,15 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
 
     data class ValueWithParameters(
             val value: String,
-            val parameters: Map<String, String>
+            val parameters: Map<String, String?>
     ) {
 
         companion object {
             fun parse(s: String): ValueWithParameters {
                 val parameters = s.substringAfter(';').split(';').associate {
-                    val (key, value) = it.trim().split('=', limit = 2)
-                    key to value.trim('"')
+                    val key = it.substringBefore('=')
+                    val value = if (it.contains('=')) it.substringAfter('=').trim('"') else null
+                    key to value
                 }
                 val value = s.substringBefore(';').trim()
                 return ValueWithParameters(value, parameters)
@@ -54,7 +55,7 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
         }
 
         override fun toString(): String {
-            return value + parameters.entries.joinToString("; ", "; ") { (key, value) -> "$key=\"$value\"" }
+            return value + parameters.entries.joinToString("; ", "; ") { (key, value) -> key + if (value != null) "=\"$value\"" else "" }
         }
     }
 
