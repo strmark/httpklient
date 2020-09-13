@@ -20,7 +20,7 @@ class SoapBodyReader<T : Any>(
 
     override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): T {
         val mimeHeaders = MimeHeaders()
-        headers.forEach { name, values -> values.forEach { mimeHeaders.addHeader(name, it) } }
+        headers.forEach { name, values -> values.forEach { value -> mimeHeaders.addHeader(name, value.toString()) } }
         val message = inputStream.use { messageFactory.createMessage(mimeHeaders, it) }
         return c.cast(jaxbContext.createUnmarshaller().unmarshal(message.soapBody.firstChild))
     }

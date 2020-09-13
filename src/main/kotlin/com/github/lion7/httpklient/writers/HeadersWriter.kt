@@ -6,7 +6,7 @@ import java.io.Writer
 internal object HeadersWriter {
 
     fun write(headers: HttpHeaders, writer: Writer) {
-        headers.forEach { name, values -> values.forEach { writer.write("$name: $it\r\n") } }
+        headers.forEach { name, values -> values.forEach { value -> writer.write("$name: $value\r\n") } }
         writer.write("\r\n")
     }
 }

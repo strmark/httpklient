@@ -27,7 +27,8 @@ class UrlConnectionHttpKlient(override val options: HttpKlient.Options) : HttpKl
         }
 
         val statusCode = connection.responseCode
-        val responseHeaders = HttpHeaders(connection.headerFields.filterKeys { it != null })
+        val responseHeaders = HttpHeaders()
+        responseHeaders.mergeMultiMap(connection.headerFields.filterKeys { it != null })
         return when (statusCode) {
             // Successful responses
             in 200..299 -> bodyReader.read(statusCode, responseHeaders, connection.inputStream)
