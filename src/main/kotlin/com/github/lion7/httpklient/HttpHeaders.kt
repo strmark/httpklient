@@ -11,21 +11,18 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
     }
 
     fun accept(value: String) = header("Accept", value)
-    fun authorization(f: Authorization.() -> String) = header("Authorization", Authorization.f())
-    fun contentDisposition(value: String, parameters: Map<String, String> = emptyMap()) = header(
-            "Content-Disposition",
-            value + parameters.map { (key, value) -> "${key}=\"${value}\"" }.joinToString("; ", "; ")
-    )
+    fun authorization(f: Authorization.() -> String) = header("Authorization", ValueWithParameters(Authorization.f(), emptyMap()))
+    fun contentDisposition(value: String, parameters: Map<String, String> = emptyMap()) = header("Content-Disposition", ValueWithParameters(value, parameters))
+    fun contentType(value: String) = header("Content-Type", ValueWithParameters.parse(value))
+    fun contentType(value: String, parameters: Map<String, String>) = header("Content-Type", ValueWithParameters(value, parameters))
 
-    fun contentType(value: String) = header("Content-Type", value)
-
-    fun header(name: String, value: String, append: Boolean = false) = header(name, listOf(value), append)
-    fun header(name: String, values: List<String>, append: Boolean = false): HttpHeaders = apply {
-        val newValues = values.map(ValueWithParameters::parse)
+    fun header(name: String, value: String, append: Boolean = false) = header(name, ValueWithParameters.parse(value), append)
+    fun header(name: String, value: ValueWithParameters, append: Boolean = false) = header(name, listOf(value), append)
+    fun header(name: String, values: List<ValueWithParameters>, append: Boolean = false): HttpHeaders = apply {
         if (append && containsKey(name)) {
-            getValue(name).addAll(newValues)
+            getValue(name).addAll(values)
         } else {
-            put(name, LinkedList(newValues))
+            put(name, LinkedList(values))
         }
     }
 
@@ -34,7 +31,7 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
     }
 
     fun mergeMultiMap(headers: Map<String, List<String>>, append: Boolean = false) = apply {
-        headers.forEach { (name, value) -> header(name, value, append) }
+        headers.forEach { (name, values) -> header(name, values.map(ValueWithParameters::parse), append) }
     }
 
     data class ValueWithParameters(
@@ -54,8 +51,10 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
             }
         }
 
-        override fun toString(): String {
-            return value + parameters.entries.joinToString("; ", "; ") { (key, value) -> key + if (value != null) "=\"$value\"" else "" }
+        override fun toString(): String = if (parameters.isEmpty()) {
+            value
+        } else {
+            value + parameters.entries.joinToString("; ", "; ") { (key, value) -> key + if (value != null) "=\"$value\"" else "" }
         }
     }
 
