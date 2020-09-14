@@ -44,11 +44,11 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
 
         companion object {
             fun parse(s: String): ValueWithParameters {
-                val parameters = s.substringAfter(';').split(';').associate {
-                    val key = it.substringBefore('=')
+                val parameters = if (s.contains(';')) s.substringAfter(';').split(';').associate {
+                    val key = it.substringBefore('=').trim()
                     val value = if (it.contains('=')) it.substringAfter('=').trim('"') else null
                     key to value
-                }
+                } else emptyMap()
                 val value = s.substringBefore(';').trim()
                 return ValueWithParameters(value, parameters)
             }

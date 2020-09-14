@@ -11,6 +11,6 @@ class InputStreamBodyWriter(
 ) : BodyWriter {
 
     override fun write(outputStream: OutputStream) {
-        inputStream.copyTo(outputStream)
+        inputStream.transferTo(outputStream)
     }
 }
