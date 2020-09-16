@@ -4,10 +4,9 @@ import com.github.lion7.httpklient.BodyReader
 import com.github.lion7.httpklient.BodyWriter
 import com.github.lion7.httpklient.HttpKlient
 import com.github.lion7.httpklient.HttpRequest
-import com.github.lion7.httpklient.readers.HeadersReader
-import com.github.lion7.httpklient.writers.HeadersWriter
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.nio.charset.StandardCharsets
 import java.util.Scanner
 
 class SocketConnectionHttpKlient(override val options: HttpKlient.Options) : HttpKlient {
@@ -30,13 +29,20 @@ class SocketConnectionHttpKlient(override val options: HttpKlient.Options) : Htt
         bodyWriter?.write(outputStream)
 
         val inputStream = socket.getInputStream().buffered()
-        val scanner = Scanner(inputStream).useDelimiter("\r\n")
-        val (version, code, _) = scanner.nextLine().split(' ', limit = 3)
+
+        // read version part of status line
+        val version = inputStream.readUntil(' '.toInt())?.toString(StandardCharsets.UTF_8)
         if (version != "HTTP/1.1") {
             throw IllegalStateException("Unsupported HTTP version '$version'")
         }
 
-        val statusCode = code.toInt()
+        // read status code part of status line
+        val code = inputStream.readUntil(' '.toInt())?.toString(StandardCharsets.UTF_8)
+        val statusCode = code?.toIntOrNull() ?: throw IllegalStateException("Unsupported HTTP status code '$code'")
+
+        // read last part of status line, which is the reason followed by /r/n
+        inputStream.readLine()
+
         val responseHeaders = HeadersReader.read(inputStream)
         return when (statusCode) {
             // Successful responses

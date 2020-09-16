@@ -7,8 +7,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class FileBodyWriter(
-        private val path: Path,
-        override val contentType: String = MediaTypes.APPLICATION_OCTET_STREAM
+    private val path: Path,
+    override val contentType: String = MediaTypes.APPLICATION_OCTET_STREAM
 ) : BodyWriter {
 
     override fun write(outputStream: OutputStream) {

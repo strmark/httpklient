@@ -17,41 +17,41 @@ interface HttpKlient {
 
     @Throws(HttpKlientException::class)
     fun <T> get(
-            uri: URI,
-            bodyReader: BodyReader<T>,
-            headers: HttpHeaders? = null
+        uri: URI,
+        bodyReader: BodyReader<T>,
+        headers: HttpHeaders? = null
     ): T = exchange("GET", uri, bodyReader, null, headers)
 
     @Throws(HttpKlientException::class)
     fun <T> post(
-            uri: URI,
-            bodyReader: BodyReader<T>,
-            bodyWriter: BodyWriter? = null,
-            headers: HttpHeaders? = null
+        uri: URI,
+        bodyReader: BodyReader<T>,
+        bodyWriter: BodyWriter? = null,
+        headers: HttpHeaders? = null
     ): T = exchange("POST", uri, bodyReader, bodyWriter, headers)
 
     @Throws(HttpKlientException::class)
     fun <T> put(
-            uri: URI,
-            bodyReader: BodyReader<T>,
-            bodyWriter: BodyWriter? = null,
-            headers: HttpHeaders? = null
+        uri: URI,
+        bodyReader: BodyReader<T>,
+        bodyWriter: BodyWriter? = null,
+        headers: HttpHeaders? = null
     ): T = exchange("PUT", uri, bodyReader, bodyWriter, headers)
 
     @Throws(HttpKlientException::class)
     fun <T> delete(
-            uri: URI,
-            bodyReader: BodyReader<T>,
-            headers: HttpHeaders? = null
+        uri: URI,
+        bodyReader: BodyReader<T>,
+        headers: HttpHeaders? = null
     ): T = exchange("DELETE", uri, bodyReader, null, headers)
 
     @Throws(HttpKlientException::class)
     fun <T> exchange(
-            method: String,
-            uri: URI,
-            bodyReader: BodyReader<T>,
-            bodyWriter: BodyWriter? = null,
-            headers: HttpHeaders? = null
+        method: String,
+        uri: URI,
+        bodyReader: BodyReader<T>,
+        bodyWriter: BodyWriter? = null,
+        headers: HttpHeaders? = null
     ): T = exchange(HttpRequest(method, uri, buildRequestHeaders(headers, bodyReader, bodyWriter)), bodyReader, bodyWriter)
 
     @Throws(HttpKlientException::class)
@@ -66,11 +66,11 @@ interface HttpKlient {
     }
 
     data class Options(
-            val connectTimeout: Duration,
-            val readTimeout: Duration,
-            val followRedirects: Boolean,
-            val defaultHeaders: HttpHeaders,
-            val errorReader: BodyReader<*>
+        val connectTimeout: Duration,
+        val readTimeout: Duration,
+        val followRedirects: Boolean,
+        val defaultHeaders: HttpHeaders,
+        val errorReader: BodyReader<*>
     ) {
         class Builder {
             var connectTimeout: Duration = Duration.ofSeconds(10)

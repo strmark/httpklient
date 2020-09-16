@@ -35,8 +35,8 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
     }
 
     data class ValueWithParameters(
-            val value: String,
-            val parameters: Map<String, String?>
+        val value: String,
+        val parameters: Map<String, String?>
     ) {
 
         companion object {
@@ -60,7 +60,7 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
 
     object Authorization {
         fun basic(username: String, password: String): String =
-                "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
+            "Basic " + Base64.getEncoder().encodeToString("$username:$password".toByteArray())
 
         fun bearer(token: String) = "Bearer $token"
     }

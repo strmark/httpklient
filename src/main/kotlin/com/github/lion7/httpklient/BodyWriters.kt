@@ -29,9 +29,11 @@ object BodyWriters {
 
     fun ofFile(file: File, contentType: String = MediaTypes.APPLICATION_OCTET_STREAM) = FileBodyWriter(file.toPath(), contentType)
 
-    fun ofClasspathResource(name: String,
-                            contentType: String = MediaTypes.APPLICATION_OCTET_STREAM,
-                            resolvingClass: Class<*> = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass): FileBodyWriter {
+    fun ofClasspathResource(
+        name: String,
+        contentType: String = MediaTypes.APPLICATION_OCTET_STREAM,
+        resolvingClass: Class<*> = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass
+    ): FileBodyWriter {
         val uri = resolvingClass.getResource(name).toURI()
         val path = try {
             Paths.get(uri)
@@ -45,11 +47,11 @@ object BodyWriters {
     fun ofMultipart(vararg parts: Part) = MultipartBodyWriter(*parts)
 
     inline fun <reified V : Any> ofJson(value: V, objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), contentType: String = MediaTypes.APPLICATION_JSON_UTF_8) =
-            JsonBodyWriter(value, objectMapper, contentType)
+        JsonBodyWriter(value, objectMapper, contentType)
 
     inline fun <reified V : Any> ofXml(element: V, jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), contentType: String = MediaTypes.APPLICATION_XML_UTF_8) =
-            XmlBodyWriter(element, jaxbContext, contentType)
+        XmlBodyWriter(element, jaxbContext, contentType)
 
     inline fun <reified V : Any> ofSoap(element: V, jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), contentType: String = MediaTypes.TEXT_XML_UTF_8) =
-            SoapBodyWriter(element, jaxbContext, contentType)
+        SoapBodyWriter(element, jaxbContext, contentType)
 }

@@ -25,22 +25,25 @@ object BodyReaders {
 
     fun ofString(accept: String = MediaTypes.ALL) = StringBodyReader(accept)
 
-    fun ofFile(accept: String = MediaTypes.ALL) = FileBodyReader(accept)
+    fun ofFile(accept: String = MediaTypes.ALL, extension: String = "tmp") = FileBodyReader(accept, extension)
 
     fun ofMultipart(accept: String = MediaTypes.MULTIPART_FORM_DATA) = MultipartBodyReader(accept)
 
     inline fun <reified V : Any> ofJson(objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), accept: String = MediaTypes.APPLICATION_JSON_UTF_8) =
-            JsonBodyReader(object : TypeReference<V>() {}, objectMapper, accept)
+        JsonBodyReader(object : TypeReference<V>() {}, objectMapper, accept)
 
     inline fun <reified V : Any> ofJsonList(objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), accept: String = MediaTypes.APPLICATION_JSON_UTF_8) =
-            JsonBodyReader(object : TypeReference<List<V>>() {}, objectMapper, accept)
+        JsonBodyReader(object : TypeReference<List<V>>() {}, objectMapper, accept)
 
-    inline fun <reified K : Any, reified V : Any> ofJsonMap(objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), accept: String = MediaTypes.APPLICATION_JSON_UTF_8) =
-            JsonBodyReader(object : TypeReference<Map<K, V>>() {}, objectMapper, accept)
+    inline fun <reified K : Any, reified V : Any> ofJsonMap(
+        objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(),
+        accept: String = MediaTypes.APPLICATION_JSON_UTF_8
+    ) =
+        JsonBodyReader(object : TypeReference<Map<K, V>>() {}, objectMapper, accept)
 
     inline fun <reified V : Any> ofXml(jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), accept: String = MediaTypes.APPLICATION_XML_UTF_8) =
-            XmlBodyReader(V::class.java, jaxbContext, accept)
+        XmlBodyReader(V::class.java, jaxbContext, accept)
 
     inline fun <reified V : Any> ofSoap(jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), accept: String = MediaTypes.TEXT_XML_UTF_8) =
-            SoapBodyReader(V::class.java, jaxbContext, accept)
+        SoapBodyReader(V::class.java, jaxbContext, accept)
 }

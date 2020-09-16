@@ -5,8 +5,8 @@ import com.github.lion7.httpklient.MediaTypes
 import java.io.OutputStream
 
 class StringBodyWriter(
-        private val string: String,
-        override val contentType: String = MediaTypes.TEXT_PLAIN
+    private val string: String,
+    override val contentType: String = MediaTypes.TEXT_PLAIN
 ) : BodyWriter {
 
     override fun write(outputStream: OutputStream) = outputStream.write(string.toByteArray())

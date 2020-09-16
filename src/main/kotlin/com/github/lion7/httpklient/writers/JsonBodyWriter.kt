@@ -6,9 +6,9 @@ import com.github.lion7.httpklient.MediaTypes
 import java.io.OutputStream
 
 class JsonBodyWriter<T : Any>(
-        private val value: T,
-        private val objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(),
-        override val contentType: String = MediaTypes.APPLICATION_JSON_UTF_8
+    private val value: T,
+    private val objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(),
+    override val contentType: String = MediaTypes.APPLICATION_JSON_UTF_8
 ) : BodyWriter {
 
 

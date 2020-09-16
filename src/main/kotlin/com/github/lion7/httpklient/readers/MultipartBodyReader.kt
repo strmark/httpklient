@@ -4,6 +4,7 @@ import com.github.lion7.httpklient.BodyReader
 import com.github.lion7.httpklient.BodyReaders
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.MediaTypes
+import com.github.lion7.httpklient.impl.HeadersReader
 import com.github.lion7.httpklient.multipart.FilePart
 import com.github.lion7.httpklient.multipart.FormFieldPart
 import com.github.lion7.httpklient.multipart.Part
@@ -24,7 +25,7 @@ class MultipartBodyReader(override val accept: String = MediaTypes.MULTIPART_FOR
             val name = contentDisposition.parameters["name"] ?: throw IllegalStateException("Parameter 'name' is missing in Content-Disposition header: '$contentDisposition'")
             val filename = contentDisposition.parameters["filename"]
             if (filename != null) {
-                val path = BodyReaders.ofFile().read(statusCode, partHeaders, mis)
+                val path = BodyReaders.ofFile(filename.substringAfterLast('.', "tmp")).read(statusCode, partHeaders, mis).toPath()
                 val partContentType = partHeaders["Content-Type"]?.singleOrNull()?.toString() ?: Files.probeContentType(path)
                 val part = FilePart(name, filename, Files.newInputStream(path), partContentType)
                 part.headers.putAll(partHeaders)

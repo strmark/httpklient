@@ -10,8 +10,8 @@ class HttpResponseBodyReader<T>(private val bodyReader: BodyReader<T>) : BodyRea
     override val accept: String = bodyReader.accept
 
     override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): HttpResponse<T> = HttpResponse(
-            statusCode,
-            headers,
-            bodyReader.read(statusCode, headers, inputStream)
+        statusCode,
+        headers,
+        bodyReader.read(statusCode, headers, inputStream)
     )
 }

@@ -9,9 +9,9 @@ import javax.xml.soap.MessageFactory
 import javax.xml.soap.MimeHeaders
 
 class SoapBodyReader<T : Any>(
-        private val c: Class<T>,
-        private val jaxbContext: JAXBContext = JAXBContext.newInstance(c),
-        override val accept: String = MediaTypes.TEXT_XML_UTF_8
+    private val c: Class<T>,
+    private val jaxbContext: JAXBContext = JAXBContext.newInstance(c),
+    override val accept: String = MediaTypes.TEXT_XML_UTF_8
 ) : BodyReader<T> {
 
     companion object {
