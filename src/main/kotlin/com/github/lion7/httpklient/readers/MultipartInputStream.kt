@@ -41,7 +41,7 @@ internal class MultipartInputStream(private val inputStream: BufferedInputStream
      */
     @Throws(IOException::class)
     override fun read(): Int {
-        if (partEnd || fileEnd) {
+        if (partEndOrFileEnd()) {
             return -1
         }
 
@@ -95,22 +95,29 @@ internal class MultipartInputStream(private val inputStream: BufferedInputStream
         // or "--" indicating the end of the multipart body
         val c1 = inputStream.read()
         val c2 = inputStream.read()
-        return if (c1 == '\r'.toInt() && c2 == '\n'.toInt()) {
-            // normal boundary
-            partEnd = true
-            -1
-        } else if (c1 == '-'.toInt() && c2 == '-'.toInt()) {
-            // closing boundary
-            fileEnd = true
-            -1
-        } else if (c1 == -1) {
-            // edge case: set `fileEnd` to true if we reached the end of the stream
-            fileEnd = true
-            -1
-        } else {
-            -1
+        return when {
+            normalBoundary(c1, c2) -> {
+                // normal boundary
+                partEnd = true
+                -1
+            }
+            closingBoundaryOrEndOfStream(c1, c2) -> {
+                // closing boundary or end of the stream
+                fileEnd = true
+                -1
+            }
+            else -> {
+                -1
+            }
         }
     }
+
+    private fun partEndOrFileEnd() = partEnd || fileEnd
+
+    private fun normalBoundary(c1: Int, c2: Int) = c1 == '\r'.toInt() && c2 == '\n'.toInt()
+
+    private fun closingBoundaryOrEndOfStream(c1: Int, c2: Int) =
+        (c1 == '-'.toInt() && c2 == '-'.toInt()) || (c1 == -1)
 
     /**
      * Read n bytes of data from the current part.

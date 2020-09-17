@@ -49,12 +49,19 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
                 val value = s.substringBefore(';').trim()
                 return ValueWithParameters(value, parameters)
             }
+
+            // see https://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html for the original list
+            private val separators = listOf('(', ')', '<', '>', '@', ',', ';', ':', '\\', '"', '/', '[', ']', '?', '=', '{', '}')
+            private fun needsQuotes(c: Char) = c.isISOControl() || c.isWhitespace() || separators.contains(c)
+            private fun String.addPrefix(prefix: String) = prefix + this
+            private fun String.escapeDoubleQuotes() = replace("\"", "\\\"")
+            private fun String.quoteIfNecessary() = if (any(::needsQuotes)) '"' + this.escapeDoubleQuotes() + '"' else this
         }
 
         override fun toString(): String = if (parameters.isEmpty()) {
             value
         } else {
-            value + parameters.entries.joinToString("; ", "; ") { (key, value) -> key + if (value != null) "=\"$value\"" else "" }
+            value + parameters.map { (key, value) -> key + (value?.quoteIfNecessary()?.addPrefix("=") ?: "") }.joinToString("; ", "; ")
         }
     }
 
