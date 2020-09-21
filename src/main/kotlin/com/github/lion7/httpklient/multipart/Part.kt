@@ -2,9 +2,32 @@ package com.github.lion7.httpklient.multipart
 
 import com.github.lion7.httpklient.HttpHeaders
 import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Path
 
-interface Part {
-    val name: String
-    val headers: HttpHeaders
+data class Part(
+    val name: String,
+    val headers: HttpHeaders,
     val content: InputStream
+) {
+
+    companion object {
+        fun ofFormField(name: String, value: String) = Part(name, HttpHeaders().contentDisposition("form-data", mapOf("name" to name)), value.byteInputStream())
+
+        fun ofFile(
+            name: String,
+            content: InputStream,
+            filename: String,
+            contentType: String
+        ) = Part(
+            name, HttpHeaders().contentDisposition("form-data", mapOf("name" to name, "filename" to filename)).contentType(contentType), content
+        )
+
+        fun ofFile(
+            name: String,
+            path: Path,
+            filename: String = path.fileName.toString(),
+            contentType: String = Files.probeContentType(path)
+        ) = ofFile(name, Files.newInputStream(path), filename, contentType)
+    }
 }

@@ -1,11 +1,11 @@
 package com.github.lion7.httpklient.impl
 
 import com.github.lion7.httpklient.HttpHeaders
-import java.io.BufferedInputStream
+import java.io.InputStream
 
 internal object HeadersReader {
 
-    fun read(inputStream: BufferedInputStream): HttpHeaders {
+    fun read(inputStream: InputStream): HttpHeaders {
         val headers = HttpHeaders()
         while (true) {
             val line = inputStream.readLine()

@@ -1,6 +1,5 @@
 package com.github.lion7.httpklient.impl
 
-import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -25,7 +24,7 @@ internal fun InputStream.readUntil(delimiter: Int): ByteArray? {
     }
 }
 
-internal fun BufferedInputStream.readLine(): String? {
+internal fun InputStream.readLine(): String? {
     val buffer = readUntil('\r'.toInt())
     // if we found something then we also want to consume the \n following the \r
     if (buffer != null) {

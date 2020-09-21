@@ -10,7 +10,9 @@ import java.io.InputStream
  * It provides a sequential interface to all MIME parts, and for each part
  * it delivers a suitable InputStream for getting its body.
  */
-internal class MultipartInputStream(private val inputStream: BufferedInputStream, private val boundary: ByteArray) : InputStream() {
+internal class MultipartInputStream(inputStream: InputStream, private val boundary: ByteArray) :
+    InputStream() {
+    private val inputStream: BufferedInputStream = if (inputStream is BufferedInputStream) inputStream else BufferedInputStream(inputStream)
     private var partEnd = false
     private var fileEnd = false
 
