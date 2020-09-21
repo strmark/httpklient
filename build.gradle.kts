@@ -2,10 +2,13 @@ plugins {
     `maven-publish`
     kotlin("jvm") version "1.4.0"
     id("org.jetbrains.dokka") version "1.4.0"
+    id("com.palantir.git-version") version "0.12.3"
 }
 
+val gitVersion: groovy.lang.Closure<String> by extra
+
 group = "com.github.lion7"
-version = "1.0-SNAPSHOT"
+version = gitVersion()
 
 repositories {
     jcenter()
@@ -22,10 +25,19 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+    withSourcesJar()
 }
 
 tasks {
     test {
         useJUnitPlatform()
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("default") {
+            from(components["java"])
+        }
     }
 }
