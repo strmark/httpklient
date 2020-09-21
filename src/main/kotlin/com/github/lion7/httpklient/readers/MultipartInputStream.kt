@@ -10,8 +10,7 @@ import java.io.InputStream
  * It provides a sequential interface to all MIME parts, and for each part
  * it delivers a suitable InputStream for getting its body.
  */
-internal class MultipartInputStream(inputStream: InputStream, private val boundary: ByteArray) :
-    InputStream() {
+internal class MultipartInputStream(inputStream: InputStream, private val boundary: ByteArray) : InputStream() {
     private val inputStream: BufferedInputStream = if (inputStream is BufferedInputStream) inputStream else BufferedInputStream(inputStream)
     private var partEnd = false
     private var fileEnd = false
@@ -41,7 +40,6 @@ internal class MultipartInputStream(inputStream: InputStream, private val bounda
      * @return A byte of data, or **-1** if end of part or file.
      * @exception IOException If some IO error occurred.
      */
-    @Throws(IOException::class)
     override fun read(): Int {
         if (partEndOrFileEnd()) {
             return -1
@@ -114,6 +112,22 @@ internal class MultipartInputStream(inputStream: InputStream, private val bounda
         }
     }
 
+    override fun available(): Int {
+        return inputStream.available()
+    }
+
+    override fun mark(readlimit: Int) {
+        inputStream.mark(readlimit)
+    }
+
+    override fun reset() {
+        inputStream.reset()
+    }
+
+    override fun markSupported(): Boolean {
+        return inputStream.markSupported()
+    }
+
     private fun partEndOrFileEnd() = partEnd || fileEnd
 
     private fun normalBoundary(c1: Int, c2: Int) = c1 == '\r'.toInt() && c2 == '\n'.toInt()
@@ -121,41 +135,8 @@ internal class MultipartInputStream(inputStream: InputStream, private val bounda
     private fun closingBoundaryOrEndOfStream(c1: Int, c2: Int) =
         (c1 == '-'.toInt() && c2 == '-'.toInt()) || (c1 == -1)
 
-    /**
-     * Read n bytes of data from the current part.
-     * @return the number of bytes data, read or **-1**
-     * if end of file.
-     * @exception IOException If some IO error occurred.
-     */
-    @Throws(IOException::class)
-    override fun read(b: ByteArray, off: Int, len: Int): Int {
-        var got = 0
-        while (got < len) {
-            val ch = read()
-            if (ch == -1) return if (got == 0) -1 else got
-            b[off + got++] = (ch and 0xFF).toByte()
-        }
-        return got
-    }
-
-    @Throws(IOException::class)
-    override fun skip(n: Long): Long {
-        for (i in 0 until n) {
-            if (read() == -1) {
-                return i
-            }
-        }
-        return n
-    }
-
-    @Throws(IOException::class)
-    override fun available(): Int {
-        return inputStream.available()
-    }
-
     // Skip to next input boundary, set stream at beginning of content:
     // Returns true if boundary was found, false otherwise.
-    @Throws(IOException::class)
     private fun skipToBoundary(): Boolean {
         while (read() != -1);
         return if (partEnd) {
