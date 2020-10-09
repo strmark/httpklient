@@ -25,6 +25,7 @@ internal fun InputStream.readUntil(delimiter: Int): ByteArray? {
 }
 
 internal fun InputStream.readLine(): String? {
+    require(markSupported())
     val buffer = readUntil('\r'.toInt())
     // if we found something then we also want to consume the \n following the \r
     if (buffer != null) {
@@ -38,4 +39,12 @@ internal fun InputStream.readLine(): String? {
         }
     }
     return buffer?.toString(StandardCharsets.UTF_8)
+}
+
+internal fun InputStream.isEndOfStream(): Boolean {
+    require(markSupported())
+    mark(1)
+    val eof = read() == -1
+    reset()
+    return eof
 }

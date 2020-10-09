@@ -29,8 +29,8 @@ class ThrowingErrorHandler<T>(private val errorReader: BodyReader<T>) {
 
     private val log = System.getLogger(javaClass.name)
 
-    fun handle(request: HttpRequest, statusCode: Int, headers: HttpHeaders, errorStream: InputStream?): Nothing {
-        val response = if (errorStream != null) {
+    fun handle(request: HttpRequest, statusCode: Int, headers: HttpHeaders, errorStream: InputStream): Nothing {
+        val response = if (!errorStream.isEndOfStream()) {
             try {
                 HttpResponseBodyReader(errorReader).read(statusCode, headers, errorStream)
             } catch (e: Exception) {

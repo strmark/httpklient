@@ -11,13 +11,19 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
     }
 
     fun accept(value: String) = header("Accept", value)
+
     fun authorization(f: Authorization.() -> String) = header("Authorization", ValueWithParameters(Authorization.f(), emptyMap()))
+
     fun contentDisposition(value: String, parameters: Map<String, String> = emptyMap()) = header("Content-Disposition", ValueWithParameters(value, parameters))
+
     fun contentType(value: String) = header("Content-Type", ValueWithParameters.parse(value))
+
     fun contentType(value: String, parameters: Map<String, String>) = header("Content-Type", ValueWithParameters(value, parameters))
 
     fun header(name: String, value: String, append: Boolean = false) = header(name, ValueWithParameters.parse(value), append)
+
     fun header(name: String, value: ValueWithParameters, append: Boolean = false) = header(name, listOf(value), append)
+
     fun header(name: String, values: List<ValueWithParameters>, append: Boolean = false): HttpHeaders = apply {
         if (append && containsKey(name)) {
             getValue(name).addAll(values)

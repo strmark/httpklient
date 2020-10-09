@@ -1,7 +1,8 @@
-package com.github.lion7.httpklient.readers
+package com.github.lion7.httpklient.multipart
 
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.MediaTypes
+import com.github.lion7.httpklient.readers.MultipartBodyReader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

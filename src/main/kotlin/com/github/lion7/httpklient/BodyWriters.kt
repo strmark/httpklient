@@ -2,6 +2,7 @@ package com.github.lion7.httpklient
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.lion7.httpklient.multipart.Part
+import com.github.lion7.httpklient.soap.SoapMessageFactory
 import com.github.lion7.httpklient.writers.ByteArrayBodyWriter
 import com.github.lion7.httpklient.writers.FileBodyWriter
 import com.github.lion7.httpklient.writers.InputStreamBodyWriter
@@ -17,8 +18,10 @@ import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.bind.JAXBContext
+import javax.xml.soap.SOAPMessage
 
 object BodyWriters {
+
     fun ofInputStream(inputStream: InputStream, contentType: String = MediaTypes.APPLICATION_OCTET_STREAM) = InputStreamBodyWriter(inputStream, contentType)
 
     fun ofByteArray(bytes: ByteArray, contentType: String = MediaTypes.APPLICATION_OCTET_STREAM) = ByteArrayBodyWriter(bytes, contentType)
@@ -46,12 +49,14 @@ object BodyWriters {
 
     fun ofMultipart(vararg parts: Part) = MultipartBodyWriter(*parts)
 
+    fun ofMultipart(message: SOAPMessage) = SoapBodyWriter(message)
+
     inline fun <reified V : Any> ofJson(value: V, objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), contentType: String = MediaTypes.APPLICATION_JSON_UTF_8) =
         JsonBodyWriter(value, objectMapper, contentType)
 
     inline fun <reified V : Any> ofXml(element: V, jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), contentType: String = MediaTypes.APPLICATION_XML_UTF_8) =
         XmlBodyWriter(element, jaxbContext, contentType)
 
-    inline fun <reified V : Any> ofSoap(element: V, jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), contentType: String = MediaTypes.TEXT_XML_UTF_8) =
-        SoapBodyWriter(element, jaxbContext, contentType)
+    inline fun <reified V : Any> ofSoap(element: V, jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), mtomEnabled: Boolean = false) =
+        SoapBodyWriter(SoapMessageFactory.createMessage(element, jaxbContext, mtomEnabled))
 }

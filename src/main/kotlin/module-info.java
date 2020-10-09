@@ -4,7 +4,8 @@ module httpklient {
 
     // optional modules
     requires static java.xml.bind;
-    requires static java.xml.ws;
+    requires static java.xml.soap;
+    requires static java.datatransfer;
     requires static com.fasterxml.jackson.databind;
 
     // packages to export

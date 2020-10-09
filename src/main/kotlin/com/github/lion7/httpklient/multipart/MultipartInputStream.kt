@@ -1,4 +1,4 @@
-package com.github.lion7.httpklient.readers
+package com.github.lion7.httpklient.multipart
 
 import java.io.BufferedInputStream
 import java.io.IOException
@@ -11,7 +11,7 @@ import java.io.InputStream
  * it delivers a suitable InputStream for getting its body.
  */
 internal class MultipartInputStream(inputStream: InputStream, private val boundary: ByteArray) : InputStream() {
-    private val inputStream: BufferedInputStream = if (inputStream is BufferedInputStream) inputStream else BufferedInputStream(inputStream)
+    private val inputStream: BufferedInputStream = inputStream.buffered()
     private var partEnd = false
     private var fileEnd = false
 

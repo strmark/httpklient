@@ -4,6 +4,7 @@ import com.github.lion7.httpklient.BodyReader
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.MediaTypes
 import com.github.lion7.httpklient.impl.HeadersReader
+import com.github.lion7.httpklient.multipart.MultipartInputStream
 import com.github.lion7.httpklient.multipart.Part
 import java.io.File
 import java.io.IOException
@@ -11,7 +12,7 @@ import java.io.InputStream
 
 class MultipartBodyReader(override val accept: String = MediaTypes.MULTIPART_FORM_DATA) : BodyReader<List<Part>> {
 
-    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): List<Part> = inputStream.use {
+    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): List<Part> {
         val contentType = headers.getValue("Content-Type").single()
         val boundary = contentType.parameters["boundary"] ?: throw IllegalStateException("Parameter 'boundary' is missing in Content-Type header: '$contentType'")
         val mis = MultipartInputStream(inputStream, boundary.toByteArray())
@@ -41,5 +42,4 @@ class MultipartBodyReader(override val accept: String = MediaTypes.MULTIPART_FOR
         }
         return Part(name, headers, content)
     }
-
 }

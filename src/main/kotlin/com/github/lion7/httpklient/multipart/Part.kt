@@ -12,7 +12,19 @@ data class Part(
 ) {
 
     companion object {
-        fun ofFormField(name: String, value: String) = Part(name, HttpHeaders().contentDisposition("form-data", mapOf("name" to name)), value.byteInputStream())
+        private const val FORM_DATA = "form-data"
+        private const val NAME = "name"
+        private const val FILENAME = "filename"
+
+        fun ofFormField(name: String, value: String) = Part(name, HttpHeaders().contentDisposition(FORM_DATA, mapOf(NAME to name)), value.byteInputStream())
+
+        fun ofFile(
+            name: String,
+            content: InputStream,
+            contentType: String
+        ) = Part(
+            name, HttpHeaders().contentDisposition(FORM_DATA, mapOf(NAME to name)).contentType(contentType), content
+        )
 
         fun ofFile(
             name: String,
@@ -20,7 +32,7 @@ data class Part(
             filename: String,
             contentType: String
         ) = Part(
-            name, HttpHeaders().contentDisposition("form-data", mapOf("name" to name, "filename" to filename)).contentType(contentType), content
+            name, HttpHeaders().contentDisposition(FORM_DATA, mapOf(NAME to name, FILENAME to filename)).contentType(contentType), content
         )
 
         fun ofFile(

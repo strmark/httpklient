@@ -7,5 +7,7 @@ import java.io.InputStream
 
 class DiscardingBodyReader(override val accept: String = MediaTypes.ALL) : BodyReader<Unit> {
 
-    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): Unit = inputStream.close()
+    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream) {
+        // do nothing
+    }
 }

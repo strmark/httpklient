@@ -5,6 +5,7 @@ import com.github.lion7.httpklient.BodyWriter
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.HttpKlient
 import com.github.lion7.httpklient.HttpRequest
+import java.io.InputStream
 import java.net.HttpURLConnection
 
 class UrlConnectionHttpKlient(override val options: HttpKlient.Options) : HttpKlient {
@@ -31,8 +32,8 @@ class UrlConnectionHttpKlient(override val options: HttpKlient.Options) : HttpKl
         responseHeaders.mergeMultiMap(connection.headerFields.filterKeys { it != null })
         return when (statusCode) {
             // Successful responses
-            in 200..299 -> bodyReader.read(statusCode, responseHeaders, connection.inputStream)
-            else -> errorHandler.handle(request, statusCode, responseHeaders, connection.errorStream)
+            in 200..299 -> connection.inputStream.buffered().use { bodyReader.read(statusCode, responseHeaders, it) }
+            else -> (connection.errorStream ?: InputStream.nullInputStream()).buffered().use { errorHandler.handle(request, statusCode, responseHeaders, it) }
         }
     }
 }

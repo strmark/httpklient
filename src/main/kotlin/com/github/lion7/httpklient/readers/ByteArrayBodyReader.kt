@@ -7,5 +7,5 @@ import java.io.InputStream
 
 class ByteArrayBodyReader(override val accept: String = MediaTypes.ALL) : BodyReader<ByteArray> {
 
-    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): ByteArray = inputStream.use { it.readAllBytes() }
+    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): ByteArray = inputStream.readAllBytes()
 }

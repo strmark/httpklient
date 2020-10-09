@@ -13,6 +13,5 @@ class JsonBodyReader<T : Any>(
     override val accept: String = MediaTypes.APPLICATION_JSON_UTF_8
 ) : BodyReader<T> {
 
-    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): T =
-        inputStream.use { objectMapper.readValue(it, t) }
+    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): T = objectMapper.readValue(inputStream, t)
 }

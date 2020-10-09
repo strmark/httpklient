@@ -9,5 +9,6 @@ import java.io.InputStream
 interface BodyReader<T> {
 
     val accept: String
+
     fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): T
 }
