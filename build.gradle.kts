@@ -18,6 +18,7 @@ dependencies {
     compileOnly("org.glassfish.jaxb:jaxb-runtime:2.3.3")
     compileOnly("jakarta.xml.ws:jakarta.xml.ws-api:2.3.3")
     compileOnly("com.fasterxml.jackson.core:jackson-databind:2.11.2")
+    compileOnly("io.opentracing:opentracing-api:0.33.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 }
