@@ -1,17 +1,11 @@
 package com.github.lion7.httpklient
 
 import com.github.lion7.httpklient.exception.HttpKlientException
-import com.github.lion7.httpklient.impl.UrlConnectionHttpKlient
 import com.github.lion7.httpklient.readers.DiscardingBodyReader
 import java.net.URI
 import java.time.Duration
 
 interface HttpKlient {
-
-    companion object {
-        val default: HttpKlient = create {}
-        fun create(f: Options.Builder.() -> Unit): HttpKlient = UrlConnectionHttpKlient(Options.Builder().apply(f).build())
-    }
 
     val options: Options
 

@@ -8,7 +8,9 @@ import com.github.lion7.httpklient.HttpRequest
 import java.io.InputStream
 import java.net.HttpURLConnection
 
-class UrlConnectionHttpKlient(override val options: HttpKlient.Options) : HttpKlient {
+class UrlConnectionHttpKlient(configure: HttpKlient.Options.Builder.() -> Unit = {}) : HttpKlient {
+
+    override val options: HttpKlient.Options = HttpKlient.Options.Builder().apply(configure).build()
 
     private val errorHandler = ThrowingErrorHandler(options.errorReader)
 

@@ -10,7 +10,9 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.URI
 
-class MockHttpKlient(override val options: HttpKlient.Options) : AbstractRawHttpKlient() {
+class MockHttpKlient(configure: HttpKlient.Options.Builder.() -> Unit = {}) : AbstractRawHttpKlient() {
+
+    override val options: HttpKlient.Options = HttpKlient.Options.Builder().apply(configure).build()
 
     private val mockRequests = mutableMapOf<String, Pair<HttpRequest, () -> InputStream>>()
     private val mockResponses = mutableMapOf<String, HttpResponse<BodyWriter?>>()

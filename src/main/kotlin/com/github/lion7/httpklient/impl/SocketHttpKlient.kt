@@ -7,7 +7,10 @@ import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 
-class SocketHttpKlient(override val options: HttpKlient.Options) : AbstractRawHttpKlient() {
+class SocketHttpKlient(configure: HttpKlient.Options.Builder.() -> Unit = {}) : AbstractRawHttpKlient() {
+
+    override val options: HttpKlient.Options = HttpKlient.Options.Builder().apply(configure).build()
+
     override fun connect(request: HttpRequest): Pair<OutputStream, InputStream> {
         val socket = Socket()
         socket.soTimeout = options.readTimeout.toMillis().toInt()
