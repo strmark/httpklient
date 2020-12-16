@@ -11,7 +11,11 @@ class TracingHttpKlient(private val tracer: Tracer, private val delegate: HttpKl
     override val options: HttpKlient.Options = delegate.options
 
     override fun <T> exchange(request: HttpRequest, bodyReader: BodyReader<T>, bodyWriter: BodyWriter?): T {
-        val span = tracer.buildSpan("${request.method} ${request.uri}").start()
+        val span = tracer.buildSpan(request.method)
+            .withTag("component", "httpklient")
+            .withTag("span.kind", "client")
+            .withTag("http.url", request.uri.toASCIIString())
+            .start()
         try {
             tracer.activateSpan(span).use { return delegate.exchange(request, bodyReader, bodyWriter) }
         } finally {

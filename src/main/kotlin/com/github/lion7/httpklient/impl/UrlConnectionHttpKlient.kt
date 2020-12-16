@@ -30,8 +30,10 @@ class UrlConnectionHttpKlient(configure: HttpKlient.Options.Builder.() -> Unit =
         }
 
         val statusCode = connection.responseCode
+        val headerFields: Map<String?, List<String>> = connection.headerFields
+
         val responseHeaders = HttpHeaders()
-        responseHeaders.mergeMultiMap(connection.headerFields.filterKeys { it != null })
+        responseHeaders.mergeMultiMap(headerFields.filterKeys { it != null }.mapKeys { it.key as String })
         return when (statusCode) {
             // Successful responses
             in 200..299 -> connection.inputStream.buffered().use { bodyReader.read(statusCode, responseHeaders, it) }

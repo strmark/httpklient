@@ -10,7 +10,7 @@ import java.io.InputStream
 class FileBodyReader(override val accept: String = MediaTypes.ALL, private val extension: String = "tmp") : BodyReader<File> {
 
     override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): File {
-        val file = File.createTempFile("httpklient", ".$extension")
+        val file = File.createTempFile(javaClass.simpleName, ".$extension")
         try {
             file.outputStream().use { outputStream -> inputStream.transferTo(outputStream) }
         } catch (e: IOException) {

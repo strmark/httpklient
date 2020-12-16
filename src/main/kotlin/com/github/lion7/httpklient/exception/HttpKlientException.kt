@@ -4,7 +4,7 @@ import com.github.lion7.httpklient.HttpRequest
 import com.github.lion7.httpklient.HttpResponse
 
 abstract class HttpKlientException(val request: HttpRequest, val response: HttpResponse<*>) :
-    RuntimeException("HTTP request '${request.method} ${request.uri}' failed with status code '${response.statusCode}'")
+    RuntimeException("HTTP request '${request.method} ${request.uri}' failed with status code '${response.statusCode}' and body:\n${response.body}")
 
 open class InformationalStatusException(request: HttpRequest, response: HttpResponse<*>) : HttpKlientException(request, response)
 

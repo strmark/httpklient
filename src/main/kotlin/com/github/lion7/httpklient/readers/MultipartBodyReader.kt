@@ -31,7 +31,7 @@ class MultipartBodyReader(override val accept: String = MediaTypes.MULTIPART_FOR
         val content = if (contentDisposition.parameters["filename"] == null && (contentType == null || contentType.value == MediaTypes.TEXT_PLAIN)) {
             inputStream.readAllBytes().inputStream()
         } else {
-            val file = File.createTempFile("httpklient", ".part")
+            val file = File.createTempFile(javaClass.simpleName, ".part")
             try {
                 file.outputStream().use { outputStream -> inputStream.transferTo(outputStream) }
             } catch (e: IOException) {
