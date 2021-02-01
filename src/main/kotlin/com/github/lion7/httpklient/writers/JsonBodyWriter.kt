@@ -11,6 +11,5 @@ class JsonBodyWriter<T : Any>(
     override val contentType: String = MediaTypes.APPLICATION_JSON_UTF_8
 ) : BodyWriter {
 
-
     override fun write(outputStream: OutputStream) = objectMapper.writeValue(outputStream, value)
 }

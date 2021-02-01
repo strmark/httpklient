@@ -10,5 +10,5 @@ interface BodyReader<T> {
 
     val accept: String
 
-    fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): T
+    fun <S : InputStream> read(response: HttpResponse<S>): T
 }

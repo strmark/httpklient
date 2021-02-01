@@ -2,6 +2,7 @@ package com.github.lion7.httpklient
 
 import com.github.lion7.httpklient.exception.HttpKlientException
 import com.github.lion7.httpklient.readers.DiscardingBodyReader
+import com.github.lion7.httpklient.writers.EmptyBodyWriter
 import java.net.URI
 import java.time.Duration
 
@@ -14,13 +15,13 @@ interface HttpKlient {
         uri: URI,
         bodyReader: BodyReader<T>,
         headers: HttpHeaders? = null
-    ): T = exchange("GET", uri, bodyReader, null, headers)
+    ): T = exchange("GET", uri, bodyReader, EmptyBodyWriter, headers)
 
     @Throws(HttpKlientException::class)
     fun <T> post(
         uri: URI,
         bodyReader: BodyReader<T>,
-        bodyWriter: BodyWriter? = null,
+        bodyWriter: BodyWriter = EmptyBodyWriter,
         headers: HttpHeaders? = null
     ): T = exchange("POST", uri, bodyReader, bodyWriter, headers)
 
@@ -28,7 +29,7 @@ interface HttpKlient {
     fun <T> put(
         uri: URI,
         bodyReader: BodyReader<T>,
-        bodyWriter: BodyWriter? = null,
+        bodyWriter: BodyWriter = EmptyBodyWriter,
         headers: HttpHeaders? = null
     ): T = exchange("PUT", uri, bodyReader, bodyWriter, headers)
 
@@ -37,27 +38,16 @@ interface HttpKlient {
         uri: URI,
         bodyReader: BodyReader<T>,
         headers: HttpHeaders? = null
-    ): T = exchange("DELETE", uri, bodyReader, null, headers)
+    ): T = exchange("DELETE", uri, bodyReader, EmptyBodyWriter, headers)
 
     @Throws(HttpKlientException::class)
     fun <T> exchange(
         method: String,
         uri: URI,
         bodyReader: BodyReader<T>,
-        bodyWriter: BodyWriter? = null,
+        bodyWriter: BodyWriter = EmptyBodyWriter,
         headers: HttpHeaders? = null
-    ): T = exchange(HttpRequest(method, uri, buildRequestHeaders(headers, bodyReader, bodyWriter)), bodyReader, bodyWriter)
-
-    @Throws(HttpKlientException::class)
-    fun <T> exchange(request: HttpRequest, bodyReader: BodyReader<T>, bodyWriter: BodyWriter?): T
-
-    private fun buildRequestHeaders(headers: HttpHeaders?, bodyReader: BodyReader<*>, bodyWriter: BodyWriter?): HttpHeaders {
-        val requestHeaders = HttpHeaders(options.defaultHeaders)
-        requestHeaders.accept(bodyReader.accept)
-        bodyWriter?.contentType?.let(requestHeaders::contentType)
-        headers?.let(requestHeaders::putAll)
-        return requestHeaders
-    }
+    ): T
 
     data class Options(
         val connectTimeout: Duration,

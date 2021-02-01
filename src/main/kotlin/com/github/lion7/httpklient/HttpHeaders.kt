@@ -1,5 +1,6 @@
 package com.github.lion7.httpklient
 
+import java.net.URI
 import java.util.Base64
 import java.util.LinkedList
 import java.util.TreeMap
@@ -10,9 +11,22 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
         initialHeaders?.let(this::putAll)
     }
 
+    fun host(uri: URI) {
+        val host = when {
+            uri.port == -1 -> uri.host
+            uri.scheme == "http" && uri.port == 80 -> uri.host
+            uri.scheme == "https" && uri.port == 443 -> uri.host
+            uri.scheme == "ftp" && uri.port == 21 -> uri.host
+            else -> "${uri.host}:${uri.port}"
+        }
+        header("Host", host)
+    }
+
     fun accept(value: String) = header("Accept", value)
 
     fun authorization(f: Authorization.() -> String) = header("Authorization", ValueWithParameters(Authorization.f(), emptyMap()))
+
+    fun connection(value: String) = header("Connection", value)
 
     fun contentDisposition(value: String, parameters: Map<String, String> = emptyMap()) = header("Content-Disposition", ValueWithParameters(value, parameters))
 

@@ -1,7 +1,7 @@
 package com.github.lion7.httpklient.readers
 
 import com.github.lion7.httpklient.BodyReader
-import com.github.lion7.httpklient.HttpHeaders
+import com.github.lion7.httpklient.HttpResponse
 import com.github.lion7.httpklient.MediaTypes
 import com.github.lion7.httpklient.soap.MtomUnmarshaller
 import org.w3c.dom.Node
@@ -18,15 +18,13 @@ class SoapBodyReader<T : Any>(
 ) : BodyReader<T> {
 
     companion object {
-        private val messageFactory: MessageFactory = MessageFactory.newInstance()
+        private val soapMessageBodyReader = SoapMessageBodyReader
     }
 
-    override val accept: String = listOf(MediaTypes.MULTIPART_RELATED, MediaTypes.TEXT_XML).joinToString()
+    override val accept: String = soapMessageBodyReader.accept
 
-    override fun read(statusCode: Int, headers: HttpHeaders, inputStream: InputStream): T {
-        val mimeHeaders = MimeHeaders()
-        headers.forEach { name, values -> values.forEach { value -> mimeHeaders.addHeader(name, value.toString()) } }
-        val message = messageFactory.createMessage(mimeHeaders, inputStream)
+    override fun <S : InputStream> read(response: HttpResponse<S>): T {
+        val message = soapMessageBodyReader.read(response)
         val unmarshaller = jaxbContext.createUnmarshaller()
         unmarshaller.attachmentUnmarshaller = MtomUnmarshaller(message)
         return c.cast(unmarshaller.unmarshal(nodeExtractor(message)))

@@ -9,23 +9,63 @@ import com.github.lion7.httpklient.readers.HttpResponseBodyReader
 import com.github.lion7.httpklient.readers.JsonBodyReader
 import com.github.lion7.httpklient.readers.MultipartBodyReader
 import com.github.lion7.httpklient.readers.SoapBodyReader
+import com.github.lion7.httpklient.readers.SoapMessageBodyReader
 import com.github.lion7.httpklient.readers.StringBodyReader
 import com.github.lion7.httpklient.readers.XmlBodyReader
+import java.lang.reflect.Type
 import javax.xml.bind.JAXBContext
+import javax.xml.soap.SOAPMessage
+import org.w3c.dom.Node
 
 object BodyReaders {
 
+    @JvmStatic
+    @JvmOverloads
     fun discarding(accept: String = MediaTypes.ALL) = DiscardingBodyReader(accept)
 
+    @JvmStatic
     fun <T> ofHttpResponse(bodyReader: BodyReader<T>) = HttpResponseBodyReader(bodyReader)
 
+    @JvmStatic
+    @JvmOverloads
     fun ofByteArray(accept: String = MediaTypes.ALL) = ByteArrayBodyReader(accept)
 
+    @JvmStatic
+    @JvmOverloads
     fun ofString(accept: String = MediaTypes.ALL) = StringBodyReader(accept)
 
+    @JvmStatic
+    @JvmOverloads
     fun ofFile(accept: String = MediaTypes.ALL, extension: String = "tmp") = FileBodyReader(accept, extension)
 
+    @JvmStatic
+    @JvmOverloads
     fun ofMultipart(accept: String = MediaTypes.MULTIPART_FORM_DATA) = MultipartBodyReader(accept)
+
+    @JvmStatic
+    fun ofSoapMessage() = SoapMessageBodyReader
+
+    @JvmStatic
+    @JvmOverloads
+    fun <V : Any> ofJson(type: Class<V>, objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), accept: String = MediaTypes.APPLICATION_JSON_UTF_8) =
+        JsonBodyReader(object : TypeReference<V>() {
+            override fun getType(): Type = type
+        }, objectMapper, accept)
+
+    @JvmStatic
+    @JvmOverloads
+    fun <V : Any> ofJson(type: TypeReference<V>, objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), accept: String = MediaTypes.APPLICATION_JSON_UTF_8) =
+        JsonBodyReader(type, objectMapper, accept)
+
+    @JvmStatic
+    @JvmOverloads
+    fun <V : Any> ofXml(type: Class<V>, jaxbContext: JAXBContext = JAXBContext.newInstance(type), accept: String = MediaTypes.APPLICATION_XML_UTF_8) =
+        XmlBodyReader(type, jaxbContext, accept)
+
+    @JvmStatic
+    @JvmOverloads
+    fun <V : Any> ofSoap(type: Class<V>, jaxbContext: JAXBContext = JAXBContext.newInstance(type), nodeExtractor: (SOAPMessage) -> Node = { it.soapBody.firstChild }) =
+        SoapBodyReader(type, jaxbContext, nodeExtractor)
 
     inline fun <reified V : Any> ofJson(objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), accept: String = MediaTypes.APPLICATION_JSON_UTF_8) =
         JsonBodyReader(object : TypeReference<V>() {}, objectMapper, accept)
@@ -41,6 +81,6 @@ object BodyReaders {
     inline fun <reified V : Any> ofXml(jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), accept: String = MediaTypes.APPLICATION_XML_UTF_8) =
         XmlBodyReader(V::class.java, jaxbContext, accept)
 
-    inline fun <reified V : Any> ofSoap(jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java)) =
-        SoapBodyReader(V::class.java, jaxbContext)
+    inline fun <reified V : Any> ofSoap(jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), noinline nodeExtractor: (SOAPMessage) -> Node = { it.soapBody.firstChild }) =
+        SoapBodyReader(V::class.java, jaxbContext, nodeExtractor)
 }

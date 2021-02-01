@@ -1,13 +1,11 @@
 package com.github.lion7.httpklient.writers
 
 import com.github.lion7.httpklient.BodyWriter
-import com.github.lion7.httpklient.MediaTypes
-import java.io.OutputStream
-import javax.xml.soap.SOAPMessage
+import com.github.lion7.httpklient.soap.SoapMessageFactory
+import javax.xml.bind.JAXBContext
 
-class SoapBodyWriter(private val message: SOAPMessage) : BodyWriter {
-
-    override val contentType: String = message.mimeHeaders.getHeader("Content-Type")?.firstOrNull() ?: MediaTypes.TEXT_XML
-
-    override fun write(outputStream: OutputStream) = message.writeTo(outputStream)
-}
+class SoapBodyWriter<T : Any>(
+    private val element: T,
+    private val jaxbContext: JAXBContext = JAXBContext.newInstance(element.javaClass),
+    private val mtomEnabled: Boolean = false
+) : BodyWriter by SoapMessageBodyWriter(SoapMessageFactory.createMessage(element, jaxbContext, mtomEnabled))

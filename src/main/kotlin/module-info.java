@@ -12,8 +12,4 @@ module httpklient {
     // packages to export
     exports com.github.lion7.httpklient;
     exports com.github.lion7.httpklient.exception;
-    exports com.github.lion7.httpklient.impl;
-    exports com.github.lion7.httpklient.multipart;
-    exports com.github.lion7.httpklient.readers;
-    exports com.github.lion7.httpklient.writers;
 }

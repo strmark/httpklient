@@ -1,10 +1,10 @@
 package com.github.lion7.httpklient.impl
 
+import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import java.nio.charset.StandardCharsets
 
-internal fun InputStream.readUntil(delimiter: Int): ByteArray? {
+internal fun BufferedInputStream.readUntil(delimiter: Int): ByteArray? {
     val buffer = ByteArrayOutputStream()
     while (true) {
         when (val ch = read()) {
@@ -24,8 +24,7 @@ internal fun InputStream.readUntil(delimiter: Int): ByteArray? {
     }
 }
 
-internal fun InputStream.readLine(): String? {
-    require(markSupported())
+internal fun BufferedInputStream.readLine(): String? {
     val buffer = readUntil('\r'.toInt())
     // if we found something then we also want to consume the \n following the \r
     if (buffer != null) {
@@ -41,8 +40,7 @@ internal fun InputStream.readLine(): String? {
     return buffer?.toString(StandardCharsets.UTF_8)
 }
 
-internal fun InputStream.isEndOfStream(): Boolean {
-    require(markSupported())
+internal fun BufferedInputStream.isEndOfStream(): Boolean {
     mark(1)
     val eof = read() == -1
     reset()

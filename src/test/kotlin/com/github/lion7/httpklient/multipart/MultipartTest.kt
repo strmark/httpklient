@@ -1,6 +1,7 @@
 package com.github.lion7.httpklient.multipart
 
 import com.github.lion7.httpklient.HttpHeaders
+import com.github.lion7.httpklient.HttpResponse
 import com.github.lion7.httpklient.MediaTypes
 import com.github.lion7.httpklient.readers.MultipartBodyReader
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -31,7 +32,7 @@ internal class MultipartTest {
     @Test
     fun multipartBodyReader() {
         val headers = HttpHeaders().contentType(MediaTypes.MULTIPART_FORM_DATA, mapOf("boundary" to boundary))
-        val parts = MultipartBodyReader().read(200, headers, message.byteInputStream())
+        val parts = MultipartBodyReader().read(HttpResponse(200, "OK", headers, message.byteInputStream()))
         val part = parts.single()
         val contentType = part.headers.getValue("Content-Type").single()
         val contentDisposition = part.headers.getValue("Content-Disposition").single()

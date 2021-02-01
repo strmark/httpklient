@@ -10,19 +10,19 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.URI
 
-class MockHttpKlient(configure: HttpKlient.Options.Builder.() -> Unit = {}) : AbstractRawHttpKlient() {
+class MockHttpKlient constructor(configure: HttpKlient.Options.Builder.() -> Unit = {}) : AbstractRawHttpKlient() {
 
     override val options: HttpKlient.Options = HttpKlient.Options.Builder().apply(configure).build()
 
     private val mockRequests = mutableMapOf<String, Pair<HttpRequest, () -> InputStream>>()
-    private val mockResponses = mutableMapOf<String, HttpResponse<BodyWriter?>>()
+    private val mockResponses = mutableMapOf<String, HttpResponse<BodyWriter>>()
 
     fun findRequest(method: String, uri: URI): Pair<HttpRequest, InputStream> {
         val request = mockRequests.getValue(key(method, uri))
         return request.first to request.second()
     }
 
-    fun mockResponse(method: String, uri: URI, response: HttpResponse<BodyWriter?>) {
+    fun mockResponse(method: String, uri: URI, response: HttpResponse<BodyWriter>) {
         mockResponses[key(method, uri)] = response
     }
 
@@ -30,11 +30,8 @@ class MockHttpKlient(configure: HttpKlient.Options.Builder.() -> Unit = {}) : Ab
         val key = key(request.method, request.uri)
         val response = mockResponses.getValue(key)
         val responseStream = ByteArrayOutputStream().use {
-            val writer = it.writer()
-            writer.write("HTTP/1.1 ${response.statusCode} Mock Response\r\n")
-            HeadersWriter.write(response.headers, writer)
-            writer.flush()
-            response.body?.write(it)
+            response.writeStatusLineAndHeaders(it)
+            response.body.write(it)
             ByteArrayInputStream(it.toByteArray())
         }
         val requestStream = ByteArrayOutputStream()

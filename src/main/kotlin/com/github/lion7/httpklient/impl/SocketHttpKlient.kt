@@ -7,7 +7,7 @@ import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 
-class SocketHttpKlient(configure: HttpKlient.Options.Builder.() -> Unit = {}) : AbstractRawHttpKlient() {
+class SocketHttpKlient constructor(configure: HttpKlient.Options.Builder.() -> Unit = {}) : AbstractRawHttpKlient() {
 
     override val options: HttpKlient.Options = HttpKlient.Options.Builder().apply(configure).build()
 
