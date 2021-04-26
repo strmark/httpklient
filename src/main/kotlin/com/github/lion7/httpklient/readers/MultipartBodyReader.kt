@@ -5,8 +5,8 @@ import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.HttpResponse
 import com.github.lion7.httpklient.MediaTypes
 import com.github.lion7.httpklient.impl.HeadersReader
-import com.github.lion7.httpklient.multipart.MultipartInputStream
-import com.github.lion7.httpklient.multipart.Part
+import com.github.lion7.httpklient.impl.MultipartInputStream
+import com.github.lion7.httpklient.Part
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.IOException

@@ -1,6 +1,5 @@
-package com.github.lion7.httpklient.multipart
+package com.github.lion7.httpklient
 
-import com.github.lion7.httpklient.HttpHeaders
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path

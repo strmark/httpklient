@@ -4,7 +4,7 @@ import com.github.lion7.httpklient.BodyWriter
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.MediaTypes
 import com.github.lion7.httpklient.impl.HeadersWriter
-import com.github.lion7.httpklient.multipart.Part
+import com.github.lion7.httpklient.Part
 import java.io.OutputStream
 import java.math.BigInteger
 import java.util.Random

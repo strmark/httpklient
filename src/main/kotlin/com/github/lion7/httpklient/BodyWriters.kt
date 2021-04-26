@@ -1,7 +1,6 @@
 package com.github.lion7.httpklient
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.lion7.httpklient.multipart.Part
 import com.github.lion7.httpklient.soap.SoapMessageBodyWriter
 import com.github.lion7.httpklient.soap.SoapMessageFactory
 import com.github.lion7.httpklient.writers.ByteArrayBodyWriter

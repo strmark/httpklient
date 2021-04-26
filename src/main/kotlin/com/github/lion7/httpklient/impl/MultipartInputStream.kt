@@ -1,4 +1,4 @@
-package com.github.lion7.httpklient.multipart
+package com.github.lion7.httpklient.impl
 
 import java.io.BufferedInputStream
 import java.io.IOException
