@@ -12,11 +12,12 @@ import java.nio.charset.StandardCharsets
 data class HttpRequest(
     val method: String,
     val uri: URI,
-    val headers: HttpHeaders
+    val headers: HttpHeaders,
+    val bodyWriter: BodyWriter
 ) {
 
     companion object {
-        fun readRequestLineAndHeaders(inputStream: BufferedInputStream): HttpRequest {
+        fun readFrom(inputStream: BufferedInputStream): HttpRequest {
             // read method part of request line
             val method = inputStream.readUntil(' '.toInt())?.toString(StandardCharsets.UTF_8) ?: throw IllegalStateException("Failed to read HTTP method")
 
@@ -32,14 +33,21 @@ data class HttpRequest(
             // read the HTTP headers
             val headers = HeadersReader.read(inputStream)
 
-            return HttpRequest(method, URI(path), headers)
+            return HttpRequest(method, URI(path), headers, BodyWriters.ofInputStream(inputStream))
         }
     }
 
     fun writeRequestLineAndHeaders(outputStream: OutputStream) {
         val writer = outputStream.writer()
-        writer.write("$method ${uri.path} HTTP/1.1\r\n")
+        writer.write("$method ${uri.path}${uri.query?.addPrefix("?") ?: ""}${uri.fragment?.addPrefix("#") ?: ""} HTTP/1.1\r\n")
         HeadersWriter.write(headers, writer)
         writer.flush()
     }
+
+    fun writeTo(outputStream: OutputStream) {
+        writeRequestLineAndHeaders(outputStream)
+        bodyWriter.write(outputStream)
+    }
+
+    private fun String.addPrefix(prefix: String) = prefix + this
 }

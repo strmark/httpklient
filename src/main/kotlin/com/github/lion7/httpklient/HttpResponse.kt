@@ -16,7 +16,7 @@ data class HttpResponse<T>(
 ) {
 
     companion object {
-        fun readStatusLineAndHeaders(inputStream: BufferedInputStream): HttpResponse<BufferedInputStream> {
+        fun readFrom(inputStream: BufferedInputStream): HttpResponse<BufferedInputStream> {
             // read version part of status line
             val version = inputStream.readUntil(' '.toInt())?.toString(StandardCharsets.UTF_8) ?: throw IllegalStateException("Failed to read HTTP version")
             if (version != "HTTP/1.1") {

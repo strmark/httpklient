@@ -2,14 +2,14 @@ package com.github.lion7.httpklient
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.lion7.httpklient.multipart.Part
+import com.github.lion7.httpklient.soap.SoapMessageBodyWriter
+import com.github.lion7.httpklient.soap.SoapMessageFactory
 import com.github.lion7.httpklient.writers.ByteArrayBodyWriter
 import com.github.lion7.httpklient.writers.EmptyBodyWriter
 import com.github.lion7.httpklient.writers.FileBodyWriter
 import com.github.lion7.httpklient.writers.InputStreamBodyWriter
 import com.github.lion7.httpklient.writers.JsonBodyWriter
 import com.github.lion7.httpklient.writers.MultipartBodyWriter
-import com.github.lion7.httpklient.writers.SoapBodyWriter
-import com.github.lion7.httpklient.writers.SoapMessageBodyWriter
 import com.github.lion7.httpklient.writers.StringBodyWriter
 import com.github.lion7.httpklient.writers.XmlBodyWriter
 import java.io.File
@@ -38,6 +38,11 @@ object BodyWriters {
     @JvmStatic
     @JvmOverloads
     fun ofString(string: String, contentType: String = MediaTypes.TEXT_PLAIN) = StringBodyWriter(string, contentType)
+
+    @JvmStatic
+    @JvmOverloads
+    fun ofFormData(formData: Map<String, String>, contentType: String = MediaTypes.APPLICATION_X_WWW_FORM_URLENCODED) =
+        StringBodyWriter(formData.entries.joinToString("&"), contentType)
 
     @JvmStatic
     @JvmOverloads
@@ -77,11 +82,16 @@ object BodyWriters {
 
     @JvmStatic
     @JvmOverloads
-    fun <V : Any> ofXml(element: V, jaxbContext: JAXBContext = JAXBContext.newInstance(element.javaClass), schema: Schema? = null, contentType: String = MediaTypes.APPLICATION_XML_UTF_8) =
+    fun <V : Any> ofXml(
+        element: V,
+        jaxbContext: JAXBContext = JAXBContext.newInstance(element.javaClass),
+        schema: Schema? = null,
+        contentType: String = MediaTypes.APPLICATION_XML_UTF_8
+    ) =
         XmlBodyWriter(element, jaxbContext, schema, contentType)
 
     @JvmStatic
     @JvmOverloads
     fun <V : Any> ofSoap(element: V, jaxbContext: JAXBContext = JAXBContext.newInstance(element.javaClass), mtomEnabled: Boolean = false) =
-        SoapBodyWriter(element, jaxbContext, mtomEnabled)
+        SoapMessageBodyWriter(SoapMessageFactory.createMessage(element, jaxbContext, mtomEnabled))
 }

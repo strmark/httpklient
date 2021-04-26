@@ -5,7 +5,7 @@ import com.github.lion7.httpklient.HttpResponse
 import com.github.lion7.httpklient.MediaTypes
 import java.io.InputStream
 
-class DiscardingBodyReader(override val accept: String = MediaTypes.ALL) : BodyReader<Unit?> {
+class DiscardingBodyReader(override val accept: String) : BodyReader<Unit?> {
 
     override fun <S : InputStream> read(response: HttpResponse<S>): Unit? = null
 }

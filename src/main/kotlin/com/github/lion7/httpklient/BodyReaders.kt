@@ -8,14 +8,14 @@ import com.github.lion7.httpklient.readers.FileBodyReader
 import com.github.lion7.httpklient.readers.HttpResponseBodyReader
 import com.github.lion7.httpklient.readers.JsonBodyReader
 import com.github.lion7.httpklient.readers.MultipartBodyReader
-import com.github.lion7.httpklient.readers.SoapBodyReader
-import com.github.lion7.httpklient.readers.SoapMessageBodyReader
 import com.github.lion7.httpklient.readers.StringBodyReader
 import com.github.lion7.httpklient.readers.XmlBodyReader
+import com.github.lion7.httpklient.soap.SoapBodyReader
+import com.github.lion7.httpklient.soap.SoapMessageBodyReader
+import org.w3c.dom.Node
 import java.lang.reflect.Type
 import javax.xml.bind.JAXBContext
 import javax.xml.soap.SOAPMessage
-import org.w3c.dom.Node
 
 object BodyReaders {
 
@@ -32,7 +32,7 @@ object BodyReaders {
 
     @JvmStatic
     @JvmOverloads
-    fun ofString(accept: String = MediaTypes.ALL) = StringBodyReader(accept)
+    fun ofString(accept: String = MediaTypes.TEXT) = StringBodyReader(accept)
 
     @JvmStatic
     @JvmOverloads
@@ -43,7 +43,8 @@ object BodyReaders {
     fun ofMultipart(accept: String = MediaTypes.MULTIPART_FORM_DATA) = MultipartBodyReader(accept)
 
     @JvmStatic
-    fun ofSoapMessage() = SoapMessageBodyReader
+    @JvmOverloads
+    fun ofSoapMessage(mtomEnabled: Boolean = true) = SoapMessageBodyReader(mtomEnabled)
 
     @JvmStatic
     @JvmOverloads
@@ -64,8 +65,12 @@ object BodyReaders {
 
     @JvmStatic
     @JvmOverloads
-    fun <V : Any> ofSoap(type: Class<V>, jaxbContext: JAXBContext = JAXBContext.newInstance(type), nodeExtractor: (SOAPMessage) -> Node = { it.soapBody.firstChild }) =
-        SoapBodyReader(type, jaxbContext, nodeExtractor)
+    fun <V : Any> ofSoap(
+        type: Class<V>,
+        jaxbContext: JAXBContext = JAXBContext.newInstance(type),
+        nodeExtractor: (SOAPMessage) -> Node = { it.soapBody.firstChild },
+        mtomEnabled: Boolean = true
+    ) = SoapBodyReader(type, jaxbContext, nodeExtractor, mtomEnabled)
 
     inline fun <reified V : Any> ofJson(objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), accept: String = MediaTypes.APPLICATION_JSON_UTF_8) =
         JsonBodyReader(object : TypeReference<V>() {}, objectMapper, accept)
@@ -81,6 +86,9 @@ object BodyReaders {
     inline fun <reified V : Any> ofXml(jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), accept: String = MediaTypes.APPLICATION_XML_UTF_8) =
         XmlBodyReader(V::class.java, jaxbContext, accept)
 
-    inline fun <reified V : Any> ofSoap(jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java), noinline nodeExtractor: (SOAPMessage) -> Node = { it.soapBody.firstChild }) =
-        SoapBodyReader(V::class.java, jaxbContext, nodeExtractor)
+    inline fun <reified V : Any> ofSoap(
+        jaxbContext: JAXBContext = JAXBContext.newInstance(V::class.java),
+        noinline nodeExtractor: (SOAPMessage) -> Node = { it.soapBody.firstChild },
+        mtomEnabled: Boolean = true
+    ) = SoapBodyReader(V::class.java, jaxbContext, nodeExtractor, mtomEnabled)
 }

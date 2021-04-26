@@ -6,5 +6,7 @@ interface BodyWriter {
 
     val contentType: String
 
+    val contentLength: Long?
+
     fun write(outputStream: OutputStream)
 }

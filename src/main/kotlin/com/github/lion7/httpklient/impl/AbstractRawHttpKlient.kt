@@ -1,6 +1,5 @@
 package com.github.lion7.httpklient.impl
 
-import com.github.lion7.httpklient.BodyWriter
 import com.github.lion7.httpklient.HttpRequest
 import com.github.lion7.httpklient.HttpResponse
 import java.io.BufferedInputStream
@@ -11,15 +10,14 @@ abstract class AbstractRawHttpKlient : AbstractHttpKlient() {
 
     abstract fun connect(request: HttpRequest): Pair<OutputStream, InputStream>
 
-    override fun exchange(request: HttpRequest, bodyWriter: BodyWriter): HttpResponse<BufferedInputStream> {
+    override fun exchange(request: HttpRequest): HttpResponse<BufferedInputStream> {
         val (rawOut, rawIn) = connect(request)
 
         val outputStream = rawOut.buffered()
-        request.writeRequestLineAndHeaders(outputStream)
-        bodyWriter.write(outputStream)
+        request.writeTo(outputStream)
         outputStream.flush()
 
         val inputStream = rawIn.buffered()
-        return HttpResponse.readStatusLineAndHeaders(inputStream)
+        return HttpResponse.readFrom(inputStream)
     }
 }

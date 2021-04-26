@@ -1,19 +1,21 @@
 package com.github.lion7.httpklient.impl
 
-import com.github.lion7.httpklient.BodyWriter
 import com.github.lion7.httpklient.HttpHeaders
-import com.github.lion7.httpklient.HttpKlient
+import com.github.lion7.httpklient.HttpKlientOptions
 import com.github.lion7.httpklient.HttpRequest
 import com.github.lion7.httpklient.HttpResponse
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
+import java.net.InetSocketAddress
+import java.net.Proxy
 
-class UrlConnectionHttpKlient constructor(configure: HttpKlient.Options.Builder.() -> Unit = {}) : AbstractHttpKlient() {
+class UrlConnectionHttpKlient(override val options: HttpKlientOptions) : AbstractHttpKlient() {
 
-    override val options: HttpKlient.Options = HttpKlient.Options.Builder().apply(configure).build()
-
-    override fun exchange(request: HttpRequest, bodyWriter: BodyWriter): HttpResponse<BufferedInputStream> {
-        val connection = request.uri.toURL().openConnection() as HttpURLConnection
+    override fun exchange(request: HttpRequest): HttpResponse<BufferedInputStream> {
+        val connection = when {
+            options.proxy != null -> request.uri.toURL().openConnection(Proxy(Proxy.Type.HTTP, InetSocketAddress(options.proxy.host, options.proxy.port)))
+            else -> request.uri.toURL().openConnection()
+        } as HttpURLConnection
         connection.requestMethod = request.method
         connection.connectTimeout = options.connectTimeout.toMillis().toInt()
         connection.readTimeout = options.readTimeout.toMillis().toInt()
@@ -23,9 +25,9 @@ class UrlConnectionHttpKlient constructor(configure: HttpKlient.Options.Builder.
             connection.setRequestProperty(key, value)
         }
 
-        if (bodyWriter.contentType.isNotEmpty()) {
+        if (request.bodyWriter.contentType.isNotEmpty()) {
             connection.doOutput = true
-            connection.outputStream.use { bodyWriter.write(it) }
+            connection.outputStream.use { request.bodyWriter.write(it) }
         }
 
         val statusCode = connection.responseCode

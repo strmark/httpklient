@@ -2,92 +2,85 @@ package com.github.lion7.httpklient.impl
 
 import com.github.lion7.httpklient.BodyReader
 import com.github.lion7.httpklient.BodyReaders
-import com.github.lion7.httpklient.BodyWriter
+import com.github.lion7.httpklient.HttpExchange
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.HttpKlient
 import com.github.lion7.httpklient.HttpRequest
 import com.github.lion7.httpklient.HttpResponse
-import com.github.lion7.httpklient.exception.BadGatewayException
-import com.github.lion7.httpklient.exception.BadRequestException
-import com.github.lion7.httpklient.exception.ClientStatusException
-import com.github.lion7.httpklient.exception.ConflictException
-import com.github.lion7.httpklient.exception.ForbiddenException
-import com.github.lion7.httpklient.exception.GatewayTimeoutException
-import com.github.lion7.httpklient.exception.HttpVersionNotSupportedException
-import com.github.lion7.httpklient.exception.InformationalStatusException
-import com.github.lion7.httpklient.exception.InternalServerErrorException
-import com.github.lion7.httpklient.exception.MethodNotAllowedException
-import com.github.lion7.httpklient.exception.NotAcceptableException
-import com.github.lion7.httpklient.exception.NotFoundException
-import com.github.lion7.httpklient.exception.NotImplementedException
-import com.github.lion7.httpklient.exception.RedirectStatusException
-import com.github.lion7.httpklient.exception.ServerStatusException
-import com.github.lion7.httpklient.exception.ServiceUnavailableException
-import com.github.lion7.httpklient.exception.UnauthorizedException
-import com.github.lion7.httpklient.exception.UnknownStatusException
+import com.github.lion7.httpklient.BadGatewayException
+import com.github.lion7.httpklient.BadRequestException
+import com.github.lion7.httpklient.ClientStatusException
+import com.github.lion7.httpklient.ConflictException
+import com.github.lion7.httpklient.ForbiddenException
+import com.github.lion7.httpklient.GatewayTimeoutException
+import com.github.lion7.httpklient.HttpVersionNotSupportedException
+import com.github.lion7.httpklient.InformationalStatusException
+import com.github.lion7.httpklient.InternalServerErrorException
+import com.github.lion7.httpklient.MethodNotAllowedException
+import com.github.lion7.httpklient.NotAcceptableException
+import com.github.lion7.httpklient.NotFoundException
+import com.github.lion7.httpklient.NotImplementedException
+import com.github.lion7.httpklient.RedirectStatusException
+import com.github.lion7.httpklient.ServerStatusException
+import com.github.lion7.httpklient.ServiceUnavailableException
+import com.github.lion7.httpklient.UnauthorizedException
+import com.github.lion7.httpklient.UnknownStatusException
 import java.io.BufferedInputStream
-import java.net.URI
 
 abstract class AbstractHttpKlient : HttpKlient {
 
-    override fun <T> exchange(method: String, uri: URI, bodyReader: BodyReader<T>, bodyWriter: BodyWriter, headers: HttpHeaders?): T
-        = exchange(HttpRequest(method, uri, buildRequestHeaders(uri, headers, bodyReader, bodyWriter)), bodyReader, options.errorReader, bodyWriter)
+    override fun <T> exchange(request: HttpRequest, bodyReader: BodyReader<T>, errorReader: BodyReader<*>): HttpExchange<T> {
+        val headers = HttpHeaders(options.defaultHeaders)
+        headers.host(request.uri)
+        headers.connection("close")
+        headers.accept(bodyReader.accept)
+        request.bodyWriter.contentType.takeUnless(String::isEmpty)?.let { headers.contentType(it) }
+        request.bodyWriter.contentLength?.let { headers.contentLength(it) }
+        headers.putAll(request.headers)
 
-    open fun <T> exchange(request: HttpRequest, bodyReader: BodyReader<T>, errorReader: BodyReader<*>, bodyWriter: BodyWriter): T {
-        val response = exchange(request, bodyWriter)
+        val actualRequest = request.copy(headers = headers)
+        val response = exchange(actualRequest)
         when (response.statusCode) {
             // Successful responses
-            in 200..299 -> return bodyReader.read(response)
+            in 200..299 -> return HttpExchange(actualRequest, BodyReaders.ofHttpResponse(bodyReader).read(response))
             else -> {
-                val errorResponse = if (response.body.isEndOfStream()) {
+                val errorResponse = try {
+                    BodyReaders.ofHttpResponse(errorReader).read(response)
+                } catch (e: Exception) {
                     HttpResponse(response.statusCode, response.statusReason, response.headers, null)
-                } else {
-                    try {
-                        BodyReaders.ofHttpResponse(errorReader).read(response)
-                    } catch (e: Exception) {
-                        HttpResponse(response.statusCode, response.statusReason, response.headers, null)
-                    }
                 }
-                when (response.statusCode) {
-                    // Informational responses
-                    in 100..199 -> throw InformationalStatusException(request, errorResponse)
-                    // Redirects
-                    in 300..399 -> throw RedirectStatusException(request, errorResponse)
-                    // Client errors
-                    400 -> throw BadRequestException(request, errorResponse)
-                    401 -> throw UnauthorizedException(request, errorResponse)
-                    403 -> throw ForbiddenException(request, errorResponse)
-                    404 -> throw NotFoundException(request, errorResponse)
-                    405 -> throw MethodNotAllowedException(request, errorResponse)
-                    406 -> throw NotAcceptableException(request, errorResponse)
-                    409 -> throw ConflictException(request, errorResponse)
-                    in 400..499 -> throw ClientStatusException(request, errorResponse)
-                    // Server errors
-                    500 -> throw InternalServerErrorException(request, errorResponse)
-                    501 -> throw NotImplementedException(request, errorResponse)
-                    502 -> throw BadGatewayException(request, errorResponse)
-                    503 -> throw ServiceUnavailableException(request, errorResponse)
-                    504 -> throw GatewayTimeoutException(request, errorResponse)
-                    505 -> throw HttpVersionNotSupportedException(request, errorResponse)
-                    in 500..599 -> throw ServerStatusException(request, errorResponse)
-                    // Unknown responses
-                    else -> throw UnknownStatusException(request, errorResponse)
-                }
+                throwException(actualRequest, errorResponse)
             }
         }
     }
 
-    abstract fun exchange(request: HttpRequest, bodyWriter: BodyWriter): HttpResponse<BufferedInputStream>
+    abstract fun exchange(request: HttpRequest): HttpResponse<BufferedInputStream>
 
-    private fun buildRequestHeaders(uri: URI, headers: HttpHeaders?, bodyReader: BodyReader<*>, bodyWriter: BodyWriter): HttpHeaders {
-        val requestHeaders = HttpHeaders(options.defaultHeaders)
-        requestHeaders.host(uri)
-        requestHeaders.connection("close")
-        requestHeaders.accept(bodyReader.accept)
-        if (bodyWriter.contentType.isNotEmpty()) {
-            requestHeaders.contentType(bodyWriter.contentType)
+    private fun throwException(request: HttpRequest, response: HttpResponse<*>): Nothing {
+        when (response.statusCode) {
+            // Informational responses
+            in 100..199 -> throw InformationalStatusException(request, response)
+            // Redirects
+            in 300..399 -> throw RedirectStatusException(request, response)
+            // Client errors
+            400 -> throw BadRequestException(request, response)
+            401 -> throw UnauthorizedException(request, response)
+            403 -> throw ForbiddenException(request, response)
+            404 -> throw NotFoundException(request, response)
+            405 -> throw MethodNotAllowedException(request, response)
+            406 -> throw NotAcceptableException(request, response)
+            409 -> throw ConflictException(request, response)
+            in 400..499 -> throw ClientStatusException(request, response)
+            // Server errors
+            500 -> throw InternalServerErrorException(request, response)
+            501 -> throw NotImplementedException(request, response)
+            502 -> throw BadGatewayException(request, response)
+            503 -> throw ServiceUnavailableException(request, response)
+            504 -> throw GatewayTimeoutException(request, response)
+            505 -> throw HttpVersionNotSupportedException(request, response)
+            in 500..599 -> throw ServerStatusException(request, response)
+            // Unknown responses
+            else -> throw UnknownStatusException(request, response)
         }
-        headers?.let(requestHeaders::putAll)
-        return requestHeaders
     }
 }

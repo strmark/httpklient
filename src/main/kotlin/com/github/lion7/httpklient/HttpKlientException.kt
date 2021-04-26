@@ -1,10 +1,16 @@
-package com.github.lion7.httpklient.exception
-
-import com.github.lion7.httpklient.HttpRequest
-import com.github.lion7.httpklient.HttpResponse
+package com.github.lion7.httpklient
 
 abstract class HttpKlientException(val request: HttpRequest, val response: HttpResponse<*>) :
-    RuntimeException("HTTP request '${request.method} ${request.uri}' failed with status code '${response.statusCode}' and body:\n${response.body}")
+    RuntimeException("HTTP request '${request.method} ${request.uri}' failed with status code '${response.statusCode}' and body:\n${response.bodyAsString()}") {
+
+    companion object {
+        fun HttpResponse<*>.bodyAsString(): String = when (body) {
+            is String -> body
+            is ByteArray -> "ByteArray of ${body.size} bytes"
+            else -> body.toString()
+        }
+    }
+}
 
 open class InformationalStatusException(request: HttpRequest, response: HttpResponse<*>) : HttpKlientException(request, response)
 

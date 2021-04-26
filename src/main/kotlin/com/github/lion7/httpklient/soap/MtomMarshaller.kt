@@ -23,8 +23,8 @@ class MtomMarshaller(private val soapMessage: SOAPMessage) : AttachmentMarshalle
         val attachmentPart = soapMessage.createAttachmentPart(data)
         attachmentPart.contentId = "<$contentId>"
         attachmentPart.contentType = data.contentType
-        attachmentPart.addMimeHeader("Content-Transfer-Encoding", "binary")
-        attachmentPart.addMimeHeader("Content-Disposition", contentDisposition.toString())
+        attachmentPart.addMimeHeader(HttpHeaders.CONTENT_TRANSFER_ENCODING, "binary")
+        attachmentPart.addMimeHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
         soapMessage.addAttachmentPart(attachmentPart)
         return "cid:$contentId"
     }

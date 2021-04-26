@@ -32,7 +32,7 @@ internal class MultipartTest {
     @Test
     fun multipartBodyReader() {
         val headers = HttpHeaders().contentType(MediaTypes.MULTIPART_FORM_DATA, mapOf("boundary" to boundary))
-        val parts = MultipartBodyReader().read(HttpResponse(200, "OK", headers, message.byteInputStream()))
+        val parts = MultipartBodyReader(MediaTypes.MULTIPART_FORM_DATA).read(HttpResponse(200, "OK", headers, message.byteInputStream()))
         val part = parts.single()
         val contentType = part.headers.getValue("Content-Type").single()
         val contentDisposition = part.headers.getValue("Content-Disposition").single()

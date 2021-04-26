@@ -1,7 +1,7 @@
 package com.github.lion7.httpklient.impl
 
 import com.github.lion7.httpklient.BodyWriter
-import com.github.lion7.httpklient.HttpKlient
+import com.github.lion7.httpklient.HttpKlientOptions
 import com.github.lion7.httpklient.HttpRequest
 import com.github.lion7.httpklient.HttpResponse
 import java.io.ByteArrayInputStream
@@ -10,9 +10,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.URI
 
-class MockHttpKlient constructor(configure: HttpKlient.Options.Builder.() -> Unit = {}) : AbstractRawHttpKlient() {
-
-    override val options: HttpKlient.Options = HttpKlient.Options.Builder().apply(configure).build()
+class MockHttpKlient(override val options: HttpKlientOptions) : AbstractRawHttpKlient() {
 
     private val mockRequests = mutableMapOf<String, Pair<HttpRequest, () -> InputStream>>()
     private val mockResponses = mutableMapOf<String, HttpResponse<BodyWriter>>()
@@ -35,7 +33,7 @@ class MockHttpKlient constructor(configure: HttpKlient.Options.Builder.() -> Uni
             ByteArrayInputStream(it.toByteArray())
         }
         val requestStream = ByteArrayOutputStream()
-        mockRequests[key] = request to { ByteArrayInputStream(requestStream.toByteArray()) }
+        mockRequests[key] = request to { requestStream.toByteArray().inputStream() }
         return requestStream to responseStream
     }
 

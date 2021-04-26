@@ -1,6 +1,7 @@
 package com.github.lion7.httpklient.readers
 
 import com.github.lion7.httpklient.BodyReader
+import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.HttpResponse
 import com.github.lion7.httpklient.MediaTypes
 import com.github.lion7.httpklient.impl.HeadersReader
@@ -11,10 +12,10 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 
-class MultipartBodyReader(override val accept: String = MediaTypes.MULTIPART_FORM_DATA) : BodyReader<List<Part>> {
+class MultipartBodyReader(override val accept: String) : BodyReader<List<Part>> {
 
     override fun <S : InputStream> read(response: HttpResponse<S>): List<Part> {
-        val contentType = response.headers.getValue("Content-Type").single()
+        val contentType = response.headers.getValue(HttpHeaders.CONTENT_TYPE).single()
         val boundary = contentType.parameters["boundary"] ?: throw IllegalStateException("Parameter 'boundary' is missing in Content-Type header: '$contentType'")
         val mis = MultipartInputStream(response.body, boundary.toByteArray())
         val parts = mutableListOf<Part>()
@@ -26,8 +27,8 @@ class MultipartBodyReader(override val accept: String = MediaTypes.MULTIPART_FOR
 
     private fun readPart(inputStream: BufferedInputStream): Part {
         val headers = HeadersReader.read(inputStream)
-        val contentDisposition = headers.getValue("Content-Disposition").single()
-        val contentType = headers["Content-Type"]?.singleOrNull()
+        val contentDisposition = headers.getValue(HttpHeaders.CONTENT_DISPOSITION).single()
+        val contentType = headers[HttpHeaders.CONTENT_TYPE]?.singleOrNull()
         val name = contentDisposition.parameters["name"] ?: throw IllegalStateException("Parameter 'name' is missing in Content-Disposition header: '$contentDisposition'")
         val content = if (contentDisposition.parameters["filename"] == null && (contentType == null || contentType.value == MediaTypes.TEXT_PLAIN)) {
             inputStream.readAllBytes().inputStream()

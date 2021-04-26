@@ -8,8 +8,8 @@ module httpklient {
     requires static java.datatransfer;
     requires static com.fasterxml.jackson.databind;
     requires static io.opentracing.api;
+    requires static org.apache.commons.io;
 
     // packages to export
     exports com.github.lion7.httpklient;
-    exports com.github.lion7.httpklient.exception;
 }

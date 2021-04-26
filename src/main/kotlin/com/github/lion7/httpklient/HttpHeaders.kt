@@ -7,9 +7,29 @@ import java.util.TreeMap
 
 class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedList<HttpHeaders.ValueWithParameters>>(String.CASE_INSENSITIVE_ORDER) {
 
+    companion object {
+        const val ACCEPT = "Accept"
+        const val AUTHORIZATION = "Authorization"
+        const val CONNECTION = "Connection"
+        const val CONTENT_DISPOSITION = "Content-Disposition"
+        const val CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding"
+        const val CONTENT_TYPE = "Content-Type"
+        const val CONTENT_LENGTH = "Content-Length"
+        const val LOCATION = "Location"
+        const val HOST = "Host"
+    }
+
     init {
         initialHeaders?.let(this::putAll)
     }
+
+    val host get() = get(HOST)?.joinToString()
+    val authorization get() = get(AUTHORIZATION)?.joinToString()
+    val connection get() = get(CONNECTION)?.joinToString()
+    val contentDisposition get() = get(CONTENT_DISPOSITION)?.joinToString()
+    val contentType get() = get(CONTENT_TYPE)?.joinToString()
+    val contentLength get() = get(CONTENT_LENGTH)?.joinToString()
+    val location get() = get(LOCATION)?.joinToString()
 
     fun host(uri: URI) {
         val host = when {
@@ -19,20 +39,22 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
             uri.scheme == "ftp" && uri.port == 21 -> uri.host
             else -> "${uri.host}:${uri.port}"
         }
-        header("Host", host)
+        header(HOST, host)
     }
 
-    fun accept(value: String) = header("Accept", value)
+    fun accept(value: String) = header(ACCEPT, value)
 
-    fun authorization(f: Authorization.() -> String) = header("Authorization", ValueWithParameters(Authorization.f(), emptyMap()))
+    fun authorization(f: Authorization.() -> String) = header(AUTHORIZATION, ValueWithParameters(Authorization.f(), emptyMap()))
 
-    fun connection(value: String) = header("Connection", value)
+    fun connection(value: String) = header(CONNECTION, value)
 
-    fun contentDisposition(value: String, parameters: Map<String, String> = emptyMap()) = header("Content-Disposition", ValueWithParameters(value, parameters))
+    fun contentDisposition(value: String, parameters: Map<String, String> = emptyMap()) = header(CONTENT_DISPOSITION, ValueWithParameters(value, parameters))
 
-    fun contentType(value: String) = header("Content-Type", ValueWithParameters.parse(value))
+    fun contentType(value: String) = header(CONTENT_TYPE, ValueWithParameters.parse(value))
 
-    fun contentType(value: String, parameters: Map<String, String>) = header("Content-Type", ValueWithParameters(value, parameters))
+    fun contentType(value: String, parameters: Map<String, String>) = header(CONTENT_TYPE, ValueWithParameters(value, parameters))
+
+    fun contentLength(value: Long) = header(CONTENT_LENGTH, ValueWithParameters.parse(value.toString()))
 
     fun header(name: String, value: String, append: Boolean = false) = header(name, ValueWithParameters.parse(value), append)
 
@@ -53,6 +75,8 @@ class HttpHeaders(initialHeaders: HttpHeaders? = null) : TreeMap<String, LinkedL
     fun mergeMultiMap(headers: Map<String, List<String>>, append: Boolean = false) = apply {
         headers.forEach { (name, values) -> header(name, values.map(ValueWithParameters::parse), append) }
     }
+
+    operator fun plus(headers: HttpHeaders?): HttpHeaders = HttpHeaders(this).also { headers?.let(it::putAll) }
 
     data class ValueWithParameters(
         val value: String,

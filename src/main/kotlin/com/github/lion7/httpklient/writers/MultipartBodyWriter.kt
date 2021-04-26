@@ -17,6 +17,7 @@ class MultipartBodyWriter(private vararg val parts: Part) : BodyWriter {
 
     private val boundary: String = BigInteger(256, random).toString()
     override val contentType: String = HttpHeaders.ValueWithParameters(MediaTypes.MULTIPART_FORM_DATA, mapOf("boundary" to boundary)).toString()
+    override val contentLength: Long? = null
 
     override fun write(outputStream: OutputStream) {
         val writer = outputStream.bufferedWriter()
