@@ -4,6 +4,7 @@ object MediaTypes {
     const val ALL = "*/*"
     const val TEXT = "text/*"
     const val TEXT_PLAIN = "text/plain"
+    const val TEXT_HTML = "text/html"
     const val TEXT_XML = "text/xml"
     const val TEXT_XML_UTF_8 = "$TEXT_XML; charset=UTF-8"
     const val APPLICATION_JSON = "application/json"

@@ -1,18 +1,18 @@
 package com.github.lion7.httpklient.impl
 
+import com.github.lion7.httpklient.BadGatewayException
+import com.github.lion7.httpklient.BadRequestException
 import com.github.lion7.httpklient.BodyReader
 import com.github.lion7.httpklient.BodyReaders
+import com.github.lion7.httpklient.ClientStatusException
+import com.github.lion7.httpklient.ConflictException
+import com.github.lion7.httpklient.ForbiddenException
+import com.github.lion7.httpklient.GatewayTimeoutException
 import com.github.lion7.httpklient.HttpExchange
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.HttpKlient
 import com.github.lion7.httpklient.HttpRequest
 import com.github.lion7.httpklient.HttpResponse
-import com.github.lion7.httpklient.BadGatewayException
-import com.github.lion7.httpklient.BadRequestException
-import com.github.lion7.httpklient.ClientStatusException
-import com.github.lion7.httpklient.ConflictException
-import com.github.lion7.httpklient.ForbiddenException
-import com.github.lion7.httpklient.GatewayTimeoutException
 import com.github.lion7.httpklient.HttpVersionNotSupportedException
 import com.github.lion7.httpklient.InformationalStatusException
 import com.github.lion7.httpklient.InternalServerErrorException
@@ -39,22 +39,24 @@ abstract class AbstractHttpKlient : HttpKlient {
         headers.putAll(request.headers)
 
         val actualRequest = request.copy(headers = headers)
-        val response = exchange(actualRequest)
-        when (response.statusCode) {
-            // Successful responses
-            in 200..299 -> return HttpExchange(actualRequest, BodyReaders.ofHttpResponse(bodyReader).read(response))
-            else -> {
-                val errorResponse = try {
-                    BodyReaders.ofHttpResponse(errorReader).read(response)
-                } catch (e: Exception) {
-                    HttpResponse(response.statusCode, response.statusReason, response.headers, null)
+        val actualResponse = exchange(actualRequest) { response ->
+            when (response.statusCode) {
+                // Successful responses
+                in 200..299 -> BodyReaders.ofHttpResponse(bodyReader).read(response)
+                else -> {
+                    val errorResponse = try {
+                        BodyReaders.ofHttpResponse(errorReader).read(response)
+                    } catch (e: Exception) {
+                        HttpResponse(response.statusCode, response.statusReason, response.headers, null)
+                    }
+                    throwException(actualRequest, errorResponse)
                 }
-                throwException(actualRequest, errorResponse)
             }
         }
+        return HttpExchange(actualRequest, actualResponse)
     }
 
-    abstract fun exchange(request: HttpRequest): HttpResponse<BufferedInputStream>
+    abstract fun <T> exchange(request: HttpRequest, responseHandler: (HttpResponse<BufferedInputStream>) -> HttpResponse<T>): HttpResponse<T>
 
     private fun throwException(request: HttpRequest, response: HttpResponse<*>): Nothing {
         when (response.statusCode) {

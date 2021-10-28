@@ -2,8 +2,10 @@ package com.github.lion7.httpklient.soap
 
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.MediaTypes
+import java.io.InputStream
 import javax.xml.bind.JAXBContext
 import javax.xml.soap.MessageFactory
+import javax.xml.soap.MimeHeaders
 import javax.xml.soap.SOAPMessage
 import javax.xml.transform.dom.DOMResult
 
@@ -12,6 +14,8 @@ object SoapMessageFactory {
     private val messageFactory: MessageFactory = MessageFactory.newInstance()
 
     fun createEmptyMessage(): SOAPMessage = messageFactory.createMessage()
+
+    fun createMessage(inputStream: InputStream): SOAPMessage = messageFactory.createMessage(MimeHeaders(), inputStream)
 
     fun <T : Any> createMessage(
         body: T,

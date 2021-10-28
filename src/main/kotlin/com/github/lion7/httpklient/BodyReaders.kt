@@ -12,10 +12,10 @@ import com.github.lion7.httpklient.readers.StringBodyReader
 import com.github.lion7.httpklient.readers.XmlBodyReader
 import com.github.lion7.httpklient.soap.SoapBodyReader
 import com.github.lion7.httpklient.soap.SoapMessageBodyReader
-import org.w3c.dom.Node
 import java.lang.reflect.Type
 import javax.xml.bind.JAXBContext
 import javax.xml.soap.SOAPMessage
+import org.w3c.dom.Node
 
 object BodyReaders {
 

@@ -7,7 +7,6 @@ import com.github.lion7.httpklient.HttpResponse
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.io.OutputStream
 import java.net.URI
 
 class MockHttpKlient(override val options: HttpKlientOptions) : AbstractRawHttpKlient() {
@@ -24,7 +23,7 @@ class MockHttpKlient(override val options: HttpKlientOptions) : AbstractRawHttpK
         mockResponses[key(method, uri)] = response
     }
 
-    override fun connect(request: HttpRequest): Pair<OutputStream, InputStream> {
+    override fun connect(request: HttpRequest): ConnectionInfo {
         val key = key(request.method, request.uri)
         val response = mockResponses.getValue(key)
         val responseStream = ByteArrayOutputStream().use {
@@ -34,7 +33,10 @@ class MockHttpKlient(override val options: HttpKlientOptions) : AbstractRawHttpK
         }
         val requestStream = ByteArrayOutputStream()
         mockRequests[key] = request to { requestStream.toByteArray().inputStream() }
-        return requestStream to responseStream
+        return ConnectionInfo(requestStream, responseStream) {
+            requestStream.close()
+            responseStream.close()
+        }
     }
 
     private fun key(method: String, uri: URI) = "$method $uri"

@@ -54,11 +54,11 @@ internal class MultipartInputStream(inputStream: InputStream, private val bounda
         // check for a boundary
         inputStream.mark(boundary.size + 3)
 
-        if (ch == '\r'.toInt()) {
+        if (ch == '\r'.code) {
             // carriage return, check if it is followed by a newline
-            if (inputStream.read() == '\n'.toInt()) {
+            if (inputStream.read() == '\n'.code) {
                 // newline found, check if it is followed by a hyphen
-                if (inputStream.read() != '-'.toInt()) {
+                if (inputStream.read() != '-'.code) {
                     // no hyphen found, so a boundary cannot follow...
                     inputStream.reset()
                     return ch
@@ -68,13 +68,13 @@ internal class MultipartInputStream(inputStream: InputStream, private val bounda
                 inputStream.reset()
                 return ch
             }
-        } else if (ch != '-'.toInt()) {
+        } else if (ch != '-'.code) {
             // not a hyphen, so a boundary cannot follow...
             return ch
         }
 
         // check that the second hyphen is there
-        if (inputStream.read() != '-'.toInt()) {
+        if (inputStream.read() != '-'.code) {
             // not a hyphen, so a boundary cannot follow...
             inputStream.reset()
             return ch
@@ -130,10 +130,10 @@ internal class MultipartInputStream(inputStream: InputStream, private val bounda
 
     private fun partEndOrFileEnd() = partEnd || fileEnd
 
-    private fun normalBoundary(c1: Int, c2: Int) = c1 == '\r'.toInt() && c2 == '\n'.toInt()
+    private fun normalBoundary(c1: Int, c2: Int) = c1 == '\r'.code && c2 == '\n'.code
 
     private fun closingBoundaryOrEndOfStream(c1: Int, c2: Int) =
-        (c1 == '-'.toInt() && c2 == '-'.toInt()) || (c1 == -1)
+        (c1 == '-'.code && c2 == '-'.code) || (c1 == -1)
 
     // Skip to next input boundary, set stream at beginning of content:
     // Returns true if boundary was found, false otherwise.

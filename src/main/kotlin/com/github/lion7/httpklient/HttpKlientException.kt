@@ -1,13 +1,14 @@
 package com.github.lion7.httpklient
 
 abstract class HttpKlientException(val request: HttpRequest, val response: HttpResponse<*>) :
-    RuntimeException("HTTP request '${request.method} ${request.uri}' failed with status code '${response.statusCode}' and body:\n${response.bodyAsString()}") {
+    RuntimeException("HTTP request '${request.method} ${request.uri}' failed with status code '${response.statusCode}'" + response.bodyAsString(" and body:\n")) {
 
     companion object {
-        fun HttpResponse<*>.bodyAsString(): String = when (body) {
-            is String -> body
-            is ByteArray -> "ByteArray of ${body.size} bytes"
-            else -> body.toString()
+        fun HttpResponse<*>.bodyAsString(prefix: String): String = when (body) {
+            null -> ""
+            is String -> prefix + body
+            is ByteArray -> prefix + "ByteArray of ${body.size} bytes"
+            else -> prefix + body
         }
     }
 }

@@ -7,7 +7,7 @@ import com.github.lion7.httpklient.impl.readUntil
 import java.io.BufferedInputStream
 import java.io.OutputStream
 import java.net.URI
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.UTF_8
 
 data class HttpRequest(
     val method: String,
@@ -19,10 +19,10 @@ data class HttpRequest(
     companion object {
         fun readFrom(inputStream: BufferedInputStream): HttpRequest {
             // read method part of request line
-            val method = inputStream.readUntil(' '.toInt())?.toString(StandardCharsets.UTF_8) ?: throw IllegalStateException("Failed to read HTTP method")
+            val method = inputStream.readUntil(' '.code)?.toString(UTF_8) ?: throw IllegalStateException("Failed to read HTTP method")
 
             // read path part of request line
-            val path = inputStream.readUntil(' '.toInt())?.toString(StandardCharsets.UTF_8) ?: throw IllegalStateException("Failed to read HTTP path")
+            val path = inputStream.readUntil(' '.code)?.toString(UTF_8) ?: throw IllegalStateException("Failed to read HTTP path")
 
             // read last part of request line, which is the version followed by /r/n
             val version = inputStream.readLine() ?: throw IllegalStateException("Failed to read HTTP version")
@@ -45,8 +45,10 @@ data class HttpRequest(
     }
 
     fun writeTo(outputStream: OutputStream) {
-        writeRequestLineAndHeaders(outputStream)
-        bodyWriter.write(outputStream)
+        val bufferedOutputStream = outputStream.buffered()
+        writeRequestLineAndHeaders(bufferedOutputStream)
+        bodyWriter.write(bufferedOutputStream)
+        bufferedOutputStream.flush()
     }
 
     private fun String.addPrefix(prefix: String) = prefix + this

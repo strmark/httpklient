@@ -2,8 +2,8 @@ import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 plugins {
     `maven-publish`
-    kotlin("jvm") version "1.4.32"
-    id("org.jetbrains.dokka") version "1.4.32"
+    kotlin("jvm") version "1.5.31"
+    id("org.jetbrains.dokka") version "1.5.31"
     id("org.ajoberstar.grgit") version "4.1.0"
 }
 
@@ -17,12 +17,12 @@ repositories {
 dependencies {
     compileOnly("org.glassfish.jaxb:jaxb-runtime:2.3.3")
     compileOnly("jakarta.xml.ws:jakarta.xml.ws-api:2.3.3")
-    compileOnly("com.fasterxml.jackson.core:jackson-databind:2.12.3")
+    compileOnly("com.fasterxml.jackson.core:jackson-databind:2.13.0")
     compileOnly("io.opentracing:opentracing-api:0.33.0")
 
     implementation("commons-io:commons-io:2.8.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
 
 java {
@@ -33,7 +33,7 @@ java {
 
 tasks {
     wrapper {
-        gradleVersion = "7.0"
+        gradleVersion = "7.2"
         distributionType = DistributionType.ALL
     }
 

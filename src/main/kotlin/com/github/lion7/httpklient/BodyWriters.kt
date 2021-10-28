@@ -69,7 +69,7 @@ object BodyWriters {
     }
 
     @JvmStatic
-    fun ofMultipart(vararg parts: Part) = MultipartBodyWriter(*parts)
+    fun ofMultipart(vararg parts: Part) = MultipartBodyWriter(parts.asIterable())
 
     @JvmStatic
     fun ofSoapMessage(message: SOAPMessage) = SoapMessageBodyWriter(message)

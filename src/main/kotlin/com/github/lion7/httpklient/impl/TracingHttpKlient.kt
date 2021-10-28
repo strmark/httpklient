@@ -4,8 +4,8 @@ import com.github.lion7.httpklient.BodyReader
 import com.github.lion7.httpklient.HttpExchange
 import com.github.lion7.httpklient.HttpHeaders
 import com.github.lion7.httpklient.HttpKlient
-import com.github.lion7.httpklient.HttpRequest
 import com.github.lion7.httpklient.HttpKlientException
+import com.github.lion7.httpklient.HttpRequest
 import io.opentracing.Tracer
 import io.opentracing.propagation.Format
 import io.opentracing.propagation.TextMap

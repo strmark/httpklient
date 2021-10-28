@@ -2,7 +2,7 @@ package com.github.lion7.httpklient.impl
 
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.UTF_8
 
 internal fun BufferedInputStream.readUntil(delimiter: Int): ByteArray? {
     val buffer = ByteArrayOutputStream()
@@ -25,7 +25,7 @@ internal fun BufferedInputStream.readUntil(delimiter: Int): ByteArray? {
 }
 
 internal fun BufferedInputStream.readLine(): String? {
-    val buffer = readUntil('\r'.toInt())
+    val buffer = readUntil('\r'.code)
     // if we found something then we also want to consume the \n following the \r
     if (buffer != null) {
         // mark the current position in the stream so we can go back
@@ -33,11 +33,11 @@ internal fun BufferedInputStream.readLine(): String? {
         // read the next character
         val next = read()
         // if it's not -1 or a newline, reset the stream to the marked position
-        if (next != -1 && next != '\n'.toInt()) {
+        if (next != -1 && next != '\n'.code) {
             reset()
         }
     }
-    return buffer?.toString(StandardCharsets.UTF_8)
+    return buffer?.toString(UTF_8)
 }
 
 internal fun BufferedInputStream.isEndOfStream(): Boolean {

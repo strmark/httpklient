@@ -6,7 +6,7 @@ import com.github.lion7.httpklient.impl.readLine
 import com.github.lion7.httpklient.impl.readUntil
 import java.io.BufferedInputStream
 import java.io.OutputStream
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.UTF_8
 
 data class HttpResponse<T>(
     val statusCode: Int,
@@ -18,13 +18,13 @@ data class HttpResponse<T>(
     companion object {
         fun readFrom(inputStream: BufferedInputStream): HttpResponse<BufferedInputStream> {
             // read version part of status line
-            val version = inputStream.readUntil(' '.toInt())?.toString(StandardCharsets.UTF_8) ?: throw IllegalStateException("Failed to read HTTP version")
+            val version = inputStream.readUntil(' '.code)?.toString(UTF_8) ?: throw IllegalStateException("Failed to read HTTP version")
             if (version != "HTTP/1.1") {
                 throw IllegalStateException("Unsupported HTTP version '$version'")
             }
 
             // read status code part of status line
-            val statusCode = inputStream.readUntil(' '.toInt())?.toString(StandardCharsets.UTF_8)?.toIntOrNull() ?: throw IllegalStateException("Failed to read HTTP status code")
+            val statusCode = inputStream.readUntil(' '.code)?.toString(UTF_8)?.toIntOrNull() ?: throw IllegalStateException("Failed to read HTTP status code")
 
             // read last part of status line, which is the reason followed by /r/n
             val statusReason = inputStream.readLine() ?: throw IllegalStateException("Failed to read HTTP status reason")
