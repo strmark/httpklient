@@ -47,5 +47,4 @@ interface HttpKlient {
 
     @Throws(HttpKlientException::class)
     fun <T> exchange(request: HttpRequest, bodyReader: BodyReader<T>, errorReader: BodyReader<*> = options.errorReader): HttpExchange<T>
-
 }

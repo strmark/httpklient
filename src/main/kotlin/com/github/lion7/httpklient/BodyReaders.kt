@@ -12,10 +12,10 @@ import com.github.lion7.httpklient.readers.StringBodyReader
 import com.github.lion7.httpklient.readers.XmlBodyReader
 import com.github.lion7.httpklient.soap.SoapBodyReader
 import com.github.lion7.httpklient.soap.SoapMessageBodyReader
+import org.w3c.dom.Node
 import java.lang.reflect.Type
 import javax.xml.bind.JAXBContext
 import javax.xml.soap.SOAPMessage
-import org.w3c.dom.Node
 
 object BodyReaders {
 
@@ -49,9 +49,12 @@ object BodyReaders {
     @JvmStatic
     @JvmOverloads
     fun <V : Any> ofJson(type: Class<V>, objectMapper: ObjectMapper = ObjectMapper().findAndRegisterModules(), accept: String = MediaTypes.APPLICATION_JSON_UTF_8) =
-        JsonBodyReader(object : TypeReference<V>() {
-            override fun getType(): Type = type
-        }, objectMapper, accept)
+        JsonBodyReader(
+            object : TypeReference<V>() {
+                override fun getType(): Type = type
+            },
+            objectMapper, accept
+        )
 
     @JvmStatic
     @JvmOverloads

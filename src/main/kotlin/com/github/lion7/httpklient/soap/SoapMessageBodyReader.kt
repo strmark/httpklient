@@ -3,10 +3,10 @@ package com.github.lion7.httpklient.soap
 import com.github.lion7.httpklient.BodyReader
 import com.github.lion7.httpklient.HttpResponse
 import com.github.lion7.httpklient.MediaTypes
+import java.io.InputStream
 import javax.xml.soap.MessageFactory
 import javax.xml.soap.MimeHeaders
 import javax.xml.soap.SOAPMessage
-import java.io.InputStream
 
 class SoapMessageBodyReader(mtomEnabled: Boolean) : BodyReader<SOAPMessage> {
 

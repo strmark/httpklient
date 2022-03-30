@@ -2,9 +2,9 @@ package com.github.lion7.httpklient.soap
 
 import com.github.lion7.httpklient.BodyWriter
 import com.github.lion7.httpklient.MediaTypes
+import org.apache.commons.io.output.CountingOutputStream
 import java.io.OutputStream
 import javax.xml.soap.SOAPMessage
-import org.apache.commons.io.output.CountingOutputStream
 
 class SoapMessageBodyWriter(private val message: SOAPMessage) : BodyWriter {
 

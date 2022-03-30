@@ -6,11 +6,11 @@ import com.github.lion7.httpklient.HttpExchange
 import com.github.lion7.httpklient.HttpKlient
 import com.github.lion7.httpklient.HttpRequest
 import com.github.lion7.httpklient.HttpResponse
+import org.apache.commons.io.input.TeeInputStream
+import org.apache.commons.io.output.TeeOutputStream
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
-import org.apache.commons.io.input.TeeInputStream
-import org.apache.commons.io.output.TeeOutputStream
 
 class LoggingHttpKlient(logFile: File, delegate: HttpKlient) : DelegatingHttpKlient(delegate), AutoCloseable {
 

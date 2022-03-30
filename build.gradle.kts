@@ -2,9 +2,9 @@ import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 plugins {
     `maven-publish`
-    kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.dokka") version "1.5.31"
-    id("org.ajoberstar.grgit") version "4.1.0"
+    kotlin("jvm") version "1.6.10"
+    id("org.jetbrains.dokka") version "1.6.10"
+    id("org.ajoberstar.grgit") version "5.0.0"
 }
 
 group = "com.github.lion7"
@@ -15,25 +15,26 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.glassfish.jaxb:jaxb-runtime:2.3.3")
-    compileOnly("jakarta.xml.ws:jakarta.xml.ws-api:2.3.3")
-    compileOnly("com.fasterxml.jackson.core:jackson-databind:2.13.0")
+    compileOnly("org.glassfish.jaxb:jaxb-runtime:3.0.2")
+    compileOnly("jakarta.xml.ws:jakarta.xml.ws-api:3.0.1")
+    compileOnly("com.fasterxml.jackson.core:jackson-databind:2.13.2.1")
     compileOnly("io.opentracing:opentracing-api:0.33.0")
+    compileOnly("javax.xml.bind:jaxb-api:2.3.1")
+    compileOnly("javax.xml.ws:jaxws-api:2.3.1")
+    implementation("commons-io:commons-io:2.11.0")
 
-    implementation("commons-io:commons-io:2.8.0")
-
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
 }
 
 tasks {
     wrapper {
-        gradleVersion = "7.2"
+        gradleVersion = "7.4.1"
         distributionType = DistributionType.ALL
     }
 
@@ -45,7 +46,6 @@ tasks {
         dependsOn(dokkaJavadoc)
         archiveClassifier.set("javadoc")
         from(dokkaJavadoc.get().outputDirectory)
-
     }
 }
 
